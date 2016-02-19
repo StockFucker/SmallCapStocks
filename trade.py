@@ -35,7 +35,7 @@ def getTradePrice(price_df,stock,date,isBuy):
         else:
             return price
 
-TRADE_DETAIL_LOG = False
+TRADE_DETAIL_LOG = True
 
 def trade(stocks_num):
 
@@ -64,6 +64,8 @@ def trade(stocks_num):
 
         total_asset = money
         for stock in current_hold:
+            if stock == "600656":
+                continue
             price = getPrice(fill_price_df,stock,date)
             amount = hold_amount[stock]
             total_asset = total_asset + price * amount * 0.998
@@ -139,8 +141,5 @@ def calculate_stocks_num():
     df.to_csv('stocks_num_result.csv')
     plot = ggplot(df,aes(x = "stocks_num", y = "value")) + geom_line()
     print plot
-
-calculate_stocks_num()
         
-
-trade()
+trade(5)

@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 
+import sys
+reload(sys) 
+sys.setdefaultencoding("utf8")
+sys.path.append('/Users/sgcy/anaconda/lib/python2.7/site-packages')
 
 from bs4 import BeautifulSoup
 import requests 
-import sys
 import os
 import string
 import urllib2
@@ -11,8 +14,7 @@ import csv
 import pandas as pd
 import tushare as ts
 
-reload(sys) 
-sys.setdefaultencoding("utf8")
+
 
 def getStocks():
     stocks_df = ts.get_stock_basics()
@@ -63,8 +65,9 @@ def fetch_data_url2(code,url):
     req = urllib2.Request(url,None,header)
     response = urllib2.urlopen(req)
     page = response.read()
-    soup = BeautifulSoup(page)
+    soup = BeautifulSoup(page,"html5lib")
     table = soup.find("table",id = "StockStructureHistoryTable")
+    table2 = soup.find_all("table")
     file_name = "volumes/" + code + ".csv"
     with open(file_name, 'wb') as fp:
         csv_writer = csv.writer(fp,delimiter=',')
@@ -77,10 +80,14 @@ def fetch_data_url2(code,url):
 
 def getData2(stock):
     number = int(stock)
-    if number > 600086:
+    if number > 0:
         url = "http://money.finance.sina.com.cn/corp/go.php/vCI_StockStructureHistory/stockid/" + stock + "/stocktype/TotalStock.phtml"
-        fetch_data_url2(stock,url)
-
+        try:
+            fetch_data_url2(stock,url)
+        except Exception, e:
+            print stock
+            print e
+        
 def go(): 
     for stock in getStocks():
         getData2(stock)
