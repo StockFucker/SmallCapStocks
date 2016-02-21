@@ -14,13 +14,10 @@ import csv
 import pandas as pd
 import tushare as ts
 
-
-
 def getStocks():
     stocks_df = ts.get_stock_basics()
     stocks = list(stocks_df.index)
     return stocks
-
 
 html_page_base = "http://f10.eastmoney.com/f10_v2/CapitalStockStructure.aspx?code="
 def getData(stock):

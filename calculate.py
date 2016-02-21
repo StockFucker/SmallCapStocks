@@ -80,7 +80,21 @@ def concatPrices(stocks):
     print df
     df.to_csv('price.csv')
 
+def concatSTs(stocks):
+    st_dfs = []
+    for stock in stocks:
+        try:
+            st_df = pd.read_csv("st/"+stock+".csv",index_col = 0)
+            st_df = st_df.set_index(['tradeDate'])
+            st_df.columns = [stock]
+            st_df = st_df.groupby(st_df.index).first()
+            st_dfs.append(st_df)
+        except Exception, e:
+            print "Error:" + stock
+    df = pd.concat(st_dfs, axis=1)
+    df.to_csv('st.csv')
+
 def go(): 
-    concatPrices(getStocks())
+    concatSTs(getStocks())
 
 go()

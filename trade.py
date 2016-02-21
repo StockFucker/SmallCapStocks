@@ -35,13 +35,52 @@ def getTradePrice(price_df,stock,date,isBuy):
         else:
             return price
 
-TRADE_DETAIL_LOG = True
+
+def shouldBuy(price_df,sh,stock,date):
+    # return True
+    sh_index = list(sh.index).index(date)
+    last_sh_index = sh_index
+
+    if last_sh_index < 0:
+        return True
+    sh_change = sh.iloc[sh_index]["close"]/sh.iloc[last_sh_index]["close"] - 1 
+
+    price_change = price_df.iloc[sh_index][stock]/price_df.iloc[last_sh_index][stock] - 1
+    if math.isnan(price_change):
+        return True
+
+    change_delta = price_change - sh_change
+    if sh_change == 0:
+        return True
+    return change_delta/abs(sh_change) < -0.5
+    # return change_delta < -0.1
+
+def notST(st_df,date):
+    def make_filter(stock):
+        if not stock in st_df.columns:
+            return True
+        else:
+            idx = list(st_df.index).index(date)
+            value = st_df.iloc[idx][stock]
+            try:
+                if math.isnan(value):
+                    return True
+            except Exception, e:
+                #print "ST:" + stock + "--" + date
+                return False
+    return make_filter
+
+TRADE_DETAIL_LOG = False
 
 def trade(stocks_num):
 
     total_df = pd.read_csv('total.csv',index_col = 0)
 
+    st_df = pd.read_csv('st.csv',index_col = 0)
+
     price_df = pd.read_csv('price.csv',index_col = 0)
+    price_df = price_df[price_df.index != "2015-02-24"]
+    price_df = price_df[price_df.index != "2015-10-07"]
     fill_price_df = price_df.fillna(method="ffill",axis=0)
 
     sh = pd.read_csv('sh.csv',index_col = 0)
@@ -59,13 +98,12 @@ def trade(stocks_num):
 
     for date, row in sh.iterrows():
 
+        #计算净值
         index_value = row['close']/first_index_value
         index_values[date] = index_value
 
         total_asset = money
         for stock in current_hold:
-            if stock == "600656":
-                continue
             price = getPrice(fill_price_df,stock,date)
             amount = hold_amount[stock]
             total_asset = total_asset + price * amount * 0.998
@@ -75,18 +113,26 @@ def trade(stocks_num):
             print "=========================================="
             print total_asset
 
+        #计算持仓
         hold = calculateHold(total_df,date,stocks_num)
+        not_st = notST(st_df,date)
+        hold = filter(not_st, hold)
         hold_set = set(hold)
 
+        date_index = list(sh.index).index(date)
+        if date_index > 0:
+            last_index = date_index - 1
+            last_close = sh.iloc[last_index]["close"]
+            if row['close']/last_close < 0.97:
+                hold_set = set([])
+        
         to_sell = current_hold - hold_set
         to_buy = hold_set - current_hold
-
-        if len(to_buy) == 0:
-            continue
 
         if TRADE_DETAIL_LOG:
             print date + "|" + str(hold_set)
 
+        #计算卖出
         for stock in to_sell:
             price = getTradePrice(price_df,stock,date,False)
             if math.isnan(price):
@@ -98,10 +144,25 @@ def trade(stocks_num):
             if TRADE_DETAIL_LOG:
                 print "[SELL]" + stock + "--" + str(price) + "--" + str(amount) +  "--" + str(money)
 
+
+        if len(to_buy) == 0:
+            current_hold = hold_set
+            continue
+
+        #计算买入
+        # should_not_buy = set([])
+        # for stock in to_buy:
+        #     price = getTradePrice(price_df,stock,date,True)
+        #     if math.isnan(price) or not shouldBuy(fill_price_df,sh,stock,date):
+        #         hold_set.remove(stock)
+        #         should_not_buy.add(stock)
+
+        # to_buy = to_buy - should_not_buy
+
         each = money/len(to_buy)
         for stock in to_buy:
             price = getTradePrice(price_df,stock,date,True)
-            if math.isnan(price) or each < 0.00001:
+            if each < 0.00001 or math.isnan(price):
                 hold_set.remove(stock)
                 continue
             hold_amount[stock] = each/price
@@ -111,22 +172,18 @@ def trade(stocks_num):
 
         current_hold = hold_set
 
-        # if win+lose > 0:
-        #     print float(win)/float(win + lose)
-
         if TRADE_DETAIL_LOG:
             print hold_amount
 
-
-    return list(my_values)[-1]
-    # df['my_value'] = my_values
-    # df['index_value'] = index_values
-    # df = df.reset_index()
-    # df = df.fillna(method="ffill",axis=0)
-    # df['date'] = pd.to_datetime(df['date'])
-    # df = pd.melt(df,id_vars = ["date"],value_vars = ['my_value','index_value']) 
-    # plot = ggplot(df,aes(x = "date", y = "value",color = "variable")) + geom_line()
-    # print plot
+    #return list(my_values)[-1]
+    df['my_value'] = my_values
+    df['index_value'] = index_values
+    df = df.reset_index()
+    df = df.fillna(method="ffill",axis=0)
+    df['date'] = pd.to_datetime(df['date'])
+    df = pd.melt(df,id_vars = ["date"],value_vars = ['my_value','index_value']) 
+    plot = ggplot(df,aes(x = "date", y = "value",color = "variable")) + geom_line()
+    print plot
 
 
 def calculate_stocks_num():
@@ -142,4 +199,4 @@ def calculate_stocks_num():
     plot = ggplot(df,aes(x = "stocks_num", y = "value")) + geom_line()
     print plot
         
-trade(5)
+trade(7)
