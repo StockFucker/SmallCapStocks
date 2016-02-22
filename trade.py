@@ -175,7 +175,22 @@ def trade(stocks_num):
         if TRADE_DETAIL_LOG:
             print hold_amount
 
+    #股数－收益
     #return list(my_values)[-1]
+
+    #股数－回撤
+    # max_redraw = 0
+    # max_value = 0
+    # for i in range(1,len(list(my_values))):
+    #     max_value = max(max_value,list(my_values)[i])
+    #     change = list(my_values)[i]/max_value - 1
+    #     if change < 0:
+    #         redraw = abs(change)
+    #         max_redraw = max(redraw,max_redraw)
+
+    # return max_redraw
+
+    #绘制
     df['my_value'] = my_values
     df['index_value'] = index_values
     df = df.reset_index()
@@ -193,10 +208,10 @@ def calculate_stocks_num():
         se[i] = value
     df = pd.DataFrame(se)
     df = df.reset_index()
-    df.columns = ["stocks_num","value"]
+    df.columns = ["stocks_num","redraw"]
     print df
-    df.to_csv('stocks_num_result.csv')
-    plot = ggplot(df,aes(x = "stocks_num", y = "value")) + geom_line()
+    df.to_csv('redraw_result.csv')
+    plot = ggplot(df,aes(x = "stocks_num", y = "redraw")) + geom_line()
     print plot
         
-trade(7)
+trade(25)
