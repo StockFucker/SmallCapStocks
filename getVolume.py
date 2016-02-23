@@ -79,14 +79,25 @@ def getData2(stock):
     number = int(stock)
     if number > 0:
         url = "http://money.finance.sina.com.cn/corp/go.php/vCI_StockStructureHistory/stockid/" + stock + "/stocktype/TotalStock.phtml"
+        fetch_data_url2(stock,url)
+        
+def go():
+    errors = []
+    for stock in getStocks():
         try:
-            fetch_data_url2(stock,url)
+            getData2(stock)
+        except Exception, e:
+            print "[Error]:" + stock
+            print e
+            errors.append(stock)
+
+    print "-----"
+    for stock in errors:
+        try:
+            getData2(stock)
+            print "[fix]:" + stock
         except Exception, e:
             print stock
             print e
-        
-def go(): 
-    for stock in getStocks():
-        getData2(stock)
 
 go()

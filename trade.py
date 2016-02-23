@@ -72,7 +72,7 @@ def notST(st_df,date):
 
 TRADE_DETAIL_LOG = False
 
-def trade(stocks_num):
+def trade(stocks_num,stop_line):
 
     total_df = pd.read_csv('total.csv',index_col = 0)
 
@@ -123,7 +123,7 @@ def trade(stocks_num):
         if date_index > 0:
             last_index = date_index - 1
             last_close = sh.iloc[last_index]["close"]
-            if row['close']/last_close < 0.97:
+            if row['close']/last_close < 1 - stop_line:
                 hold_set = set([])
         
         to_sell = current_hold - hold_set
@@ -201,17 +201,19 @@ def trade(stocks_num):
     print plot
 
 
-def calculate_stocks_num():
-    se = pd.Series(index=range(1,50))
-    for i in range(1,50):
-        value = trade(i)
-        se[i] = value
-    df = pd.DataFrame(se)
-    df = df.reset_index()
-    df.columns = ["stocks_num","redraw"]
-    print df
-    df.to_csv('redraw_result.csv')
-    plot = ggplot(df,aes(x = "stocks_num", y = "redraw")) + geom_line()
-    print plot
-        
-trade(25)
+# def calculate_stocks_num():
+#     from_to = range(10,70)
+#     se = pd.Series(index=from_to)
+#     for i in from_to:
+#         value = trade(8,float(i)/1000)
+#         se[i] = value
+#     df = pd.DataFrame(se)
+#     df = df.reset_index()
+#     df.columns = ["stop_line","redraw"]
+#     print df
+#     df.to_csv('redraw_result.csv')
+#     plot = ggplot(df,aes(x = "stop_line", y = "redraw")) + geom_line()
+#     print plot
+
+# calculate_stocks_num()
+trade(8,0.04)
