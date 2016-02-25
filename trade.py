@@ -70,7 +70,7 @@ def notST(st_df,date):
                 return False
     return make_filter
 
-TRADE_DETAIL_LOG = False
+TRADE_DETAIL_LOG = True
 
 def trade(stocks_num,stop_line):
 
@@ -216,4 +216,4 @@ def trade(stocks_num,stop_line):
 #     print plot
 
 # calculate_stocks_num()
-trade(8,0.04)
+trade(8,0.03)
