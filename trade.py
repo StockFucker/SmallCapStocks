@@ -216,4 +216,31 @@ def trade(stocks_num,stop_line):
 #     print plot
 
 # calculate_stocks_num()
-trade(8,0.03)
+# trade(8,0.03)
+
+
+
+def evaluate():
+
+    total_df = pd.read_csv('total.csv',index_col = 0)
+    total_df = total_df.fillna(method="ffill",axis=0)
+    change_df = pd.read_csv('change.csv',index_col = 0)
+    change_df = change_df[change_df.index != "2015-02-24"]
+    change_df = change_df[change_df.index != "2015-10-07"]
+    change_df = change_df.fillna(0)
+    total_df = total_df[total_df.index > "2015-01-01"]
+    change_df = change_df[change_df.index > "2015-01-01"]
+
+    change_df = change_df.T
+    change_df = change_df.std(axis=1)
+
+    total_df = total_df.T
+    total_df = total_df.mean(axis=1)
+
+    df = pd.DataFrame(index = change_df.index)
+    df['change'] = change_df
+    df['total'] = total_df
+    plot = ggplot(df,aes(x = "total", y = "change")) + geom_point(alpha=0.2) + xlim(0,10000000)
+    print plot
+
+evaluate()

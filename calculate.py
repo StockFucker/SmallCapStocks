@@ -70,7 +70,7 @@ def concatPrices(stocks):
         try:
             price_df = pd.read_csv("prices/"+stock+".csv",index_col = 0,parse_dates = True)
             to_drop = range(0,len(price_df.axes[1]))
-            to_drop.remove(2)
+            to_drop.remove(5)
             price_df = price_df.drop(price_df.columns[to_drop],1)
             price_df.columns = [stock]
             price_dfs.append(price_df)
@@ -78,7 +78,7 @@ def concatPrices(stocks):
             print "Error:" + stock
     df = pd.concat(price_dfs, axis=1)
     print df
-    df.to_csv('price.csv')
+    df.to_csv('change.csv')
 
 def concatSTs(stocks):
     st_dfs = []
@@ -95,6 +95,6 @@ def concatSTs(stocks):
     df.to_csv('st.csv')
 
 def go(): 
-    concatSTs(getStocks())
+    concatPrices(getStocks())
 
 go()
