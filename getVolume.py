@@ -13,7 +13,7 @@ import urllib2
 import csv
 import pandas as pd
 import tushare as ts
-
+        
 def getStocks():
     stocks_df = ts.get_stock_basics()
     stocks = list(stocks_df.index)
@@ -81,7 +81,7 @@ def getData2(stock):
         url = "http://money.finance.sina.com.cn/corp/go.php/vCI_StockStructureHistory/stockid/" + stock + "/stocktype/TotalStock.phtml"
         fetch_data_url2(stock,url)
         
-def go():
+def update_volume():
     errors = []
     for stock in getStocks():
         try:
@@ -100,4 +100,4 @@ def go():
             print stock
             print e
 
-go()
+# go()

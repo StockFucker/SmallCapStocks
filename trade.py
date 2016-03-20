@@ -1,246 +1,137 @@
 # -*- coding: utf-8 -*-
+
+import sys
+sys.path.append('/Users/sgcy/anaconda/lib/python2.7/site-packages')
+
+import tushare as ts
 import pandas as pd
 import math
-import tushare as ts
-from ggplot import *
+import json
+import easytrader
+from getVolume import *
+from datetime import datetime
+from threading import Timer
 
-def calculateHold(df,date,stocks_num):
-    total_df = df[df.index == date]
-    total_df = total_df.T
-    total_df = total_df.sort([date])
-    holds = list(total_df.index)[:stocks_num]
-    return holds
+def read_csv(file_name):
+    try:
+        df = pd.read_csv(file_name,header=None,names=["date","volume"])
+        return df
+    except Exception, e:
+        print e
+        return None
 
-def getPrice(price_df,stock,date):
-    idx = list(price_df.index).index(date)
-    price = price_df.iloc[idx][stock]
-    return price
-
-def getTradePrice(price_df,stock,date,isBuy):
-
-    idx = list(price_df.index).index(date)
-    price = price_df.iloc[idx][stock]
-
-    if idx == 0:
-        return price
-    else:
-        last_price = price_df.iloc[idx-1][stock]
-        change = (price - last_price)/last_price
-        if math.isnan(last_price) or math.isnan(price):
-            return float('nan')
-        elif (change > 0.098 or (change > 0.049 and change < 0.051)) and isBuy:
-            return float('nan')
-        elif (change < -0.098 or (change > -0.049 and change < -0.051)) and not isBuy:
-            return float('nan')
-        else:
-            return price
+def safe_try(task):
+    try:
+        return task()
+    except Exception, e:
+        print e
+        print "repeat"
+        return safe_try(task)
 
 
-def shouldBuy(price_df,sh,stock,date):
-    # return True
-    sh_index = list(sh.index).index(date)
-    last_sh_index = sh_index
+def logIn():
+    user = easytrader.use('xq')
+    user.prepare('xq.json')
+    return user
 
-    if last_sh_index < 0:
-        return True
-    sh_change = sh.iloc[sh_index]["close"]/sh.iloc[last_sh_index]["close"] - 1 
+def getHoldStocks(positions):
+    stocks = []
+    for position in positions:
+        stock_code = position['stock_code'][2:]
+        stocks.append(stock_code)
+    return stocks
 
-    price_change = price_df.iloc[sh_index][stock]/price_df.iloc[last_sh_index][stock] - 1
-    if math.isnan(price_change):
-        return True
+def clearStock(stock,positions,user):
+    for position in positions:
+        stock_code = position['stock_code'][2:]
+        if stock_code == stock:
+            market_value = position['market_value']
+            user.sell(stock,volume=market_value)
+            return
 
-    change_delta = price_change - sh_change
-    if sh_change == 0:
-        return True
-    return change_delta/abs(sh_change) < -0.5
-    # return change_delta < -0.1
+def buyStock(stock,each,user):
+    user.sell(stock,volume = each)
 
-def notST(st_df,date):
-    def make_filter(stock):
-        if not stock in st_df.columns:
-            return True
-        else:
-            idx = list(st_df.index).index(date)
-            value = st_df.iloc[idx][stock]
-            try:
-                if math.isnan(value):
-                    return True
-            except Exception, e:
-                #print "ST:" + stock + "--" + date
-                return False
-    return make_filter
+def getTodaydf():
 
-TRADE_DETAIL_LOG = True
+    df = ts.get_today_all()
 
-def trade(stocks_num,stop_line):
+    df.set_index(['code'],inplace = True)
 
-    total_df = pd.read_csv('total.csv',index_col = 0)
-
-    st_df = pd.read_csv('st.csv',index_col = 0)
-
-    price_df = pd.read_csv('price.csv',index_col = 0)
-    price_df = price_df[price_df.index != "2015-02-24"]
-    price_df = price_df[price_df.index != "2015-10-07"]
-    fill_price_df = price_df.fillna(method="ffill",axis=0)
-
-    sh = pd.read_csv('sh.csv',index_col = 0)
-    sh.sort(ascending=True,inplace = True)
-
-    current_hold = set([])
-
-    money = 1.0
-    hold_amount = {}
-
-    df = pd.DataFrame(index = sh.index)
-    my_values = pd.Series(index = sh.index)
-    index_values = pd.Series(index = sh.index)
-    first_index_value = sh.iloc[0]['close']
-
-    for date, row in sh.iterrows():
-
-        #计算净值
-        index_value = row['close']/first_index_value
-        index_values[date] = index_value
-
-        total_asset = money
-        for stock in current_hold:
-            price = getPrice(fill_price_df,stock,date)
-            amount = hold_amount[stock]
-            total_asset = total_asset + price * amount * 0.998
-        my_values[date] = total_asset
-
-        if TRADE_DETAIL_LOG:
-            print "=========================================="
-            print total_asset
-
-        #计算持仓
-        hold = calculateHold(total_df,date,stocks_num)
-        not_st = notST(st_df,date)
-        hold = filter(not_st, hold)
-        hold_set = set(hold)
-
-        date_index = list(sh.index).index(date)
-        if date_index > 0:
-            last_index = date_index - 1
-            last_close = sh.iloc[last_index]["close"]
-            if row['close']/last_close < 1 - stop_line:
-                hold_set = set([])
-        
-        to_sell = current_hold - hold_set
-        to_buy = hold_set - current_hold
-
-        if TRADE_DETAIL_LOG:
-            print date + "|" + str(hold_set)
-
-        #计算卖出
-        for stock in to_sell:
-            price = getTradePrice(price_df,stock,date,False)
-            if math.isnan(price):
-                hold_set.add(stock)
-                continue
-            amount = hold_amount[stock]
-            money = money + price * amount * 0.998
-            hold_amount.pop(stock, None)
-            if TRADE_DETAIL_LOG:
-                print "[SELL]" + stock + "--" + str(price) + "--" + str(amount) +  "--" + str(money)
-
-
-        if len(to_buy) == 0:
-            current_hold = hold_set
+    total_se = pd.Series(index = df.index)
+    for code, row in df.iterrows():
+        file_name = "volumes/" + code + ".csv"
+        volume_df = read_csv(file_name)
+        if volume_df is None:
             continue
+        volume_df = volume_df.replace({'万股': ''}, regex=True)
+        volume_df['date'] = pd.to_datetime(volume_df['date'])
+        volume_df = volume_df.set_index(['date'])
+        volume_df.sort(ascending=False,inplace = True)
+        # isnan?
+        try:
+            total_se[code] = float(list(volume_df["volume"])[0]) * float(row['settlement'])
+        except Exception, e:
+            print code
+            print e
 
-        #计算买入
-        # should_not_buy = set([])
-        # for stock in to_buy:
-        #     price = getTradePrice(price_df,stock,date,True)
-        #     if math.isnan(price) or not shouldBuy(fill_price_df,sh,stock,date):
-        #         hold_set.remove(stock)
-        #         should_not_buy.add(stock)
-
-        # to_buy = to_buy - should_not_buy
-
-        each = money/len(to_buy)
-        for stock in to_buy:
-            price = getTradePrice(price_df,stock,date,True)
-            if each < 0.00001 or math.isnan(price):
-                hold_set.remove(stock)
-                continue
-            hold_amount[stock] = each/price
-            money = money - each
-            if TRADE_DETAIL_LOG:
-                print "[BUY]" + stock + "--"  + str(price) + "--" + str(each/price) +  "--" + str(money)
-
-        current_hold = hold_set
-
-        if TRADE_DETAIL_LOG:
-            print hold_amount
-
-    #股数－收益
-    #return list(my_values)[-1]
-
-    #股数－回撤
-    # max_redraw = 0
-    # max_value = 0
-    # for i in range(1,len(list(my_values))):
-    #     max_value = max(max_value,list(my_values)[i])
-    #     change = list(my_values)[i]/max_value - 1
-    #     if change < 0:
-    #         redraw = abs(change)
-    #         max_redraw = max(redraw,max_redraw)
-
-    # return max_redraw
-
-    #绘制
-    df['my_value'] = my_values
-    df['index_value'] = index_values
-    df = df.reset_index()
-    df = df.fillna(method="ffill",axis=0)
-    df['date'] = pd.to_datetime(df['date'])
-    df = pd.melt(df,id_vars = ["date"],value_vars = ['my_value','index_value']) 
-    plot = ggplot(df,aes(x = "date", y = "value",color = "variable")) + geom_line()
-    print plot
+    df['total'] = total_se
+    df = df.sort(['total'])
+    return df
 
 
-# def calculate_stocks_num():
-#     from_to = range(10,70)
-#     se = pd.Series(index=from_to)
-#     for i in from_to:
-#         value = trade(8,float(i)/1000)
-#         se[i] = value
-#     df = pd.DataFrame(se)
-#     df = df.reset_index()
-#     df.columns = ["stop_line","redraw"]
-#     print df
-#     df.to_csv('redraw_result.csv')
-#     plot = ggplot(df,aes(x = "stop_line", y = "redraw")) + geom_line()
-#     print plot
+def filterST(df):
+    st_names = []
+    for name in df['name']:
+        if name.find("S") > 0:
+            st_names.append(name)
+    df = df[df['name'].isin(st_names) == False]
+    return df
 
-# calculate_stocks_num()
-# trade(8,0.03)
+def getPrice(df,stock):
+    return df[df.index == stock]['settlement'][0]
+
+def calculateDailyTotalValue():
+    original_df = safe_try(getTodaydf)
+    user = safe_try(logIn)
+    position = user.position
+    holds = getHoldStocks(position)
+
+    #1
+    df = original_df[:100]
+
+    #2
+    df = filterST(df)
+    #3
+    df = df[(df.index.isin(holds) == True) | (df['changepercent'] < 9.5)]
+    should_holds = df.index[:8]
+
+    holds_set = set(holds)
+    should_holds_set = set(should_holds)
+    to_buy = should_holds_set - holds_set
+    to_sell = holds_set - should_holds_set
+
+    for stock in to_sell:
+        clearStock(stock,position,user)
+
+    if len(to_buy) == 0:
+        return
+ 
+    balance = user.balance[0]['enable_balance']
+    each = balance/float(len(to_buy))
+    for stock in to_buy:
+        buyStock(stock,each,user)
 
 
+def scheduleTask():
+    update_volume()
+    x=datetime.today()
+    y=x.replace(day=x.day, hour=9, minute=25, second=0, microsecond=0)
+    delta_t=y-x
 
-def evaluate():
+    secs=delta_t.seconds+1
 
-    total_df = pd.read_csv('total.csv',index_col = 0)
-    total_df = total_df.fillna(method="ffill",axis=0)
-    change_df = pd.read_csv('change.csv',index_col = 0)
-    change_df = change_df[change_df.index != "2015-02-24"]
-    change_df = change_df[change_df.index != "2015-10-07"]
-    change_df = change_df.fillna(0)
-    total_df = total_df[total_df.index > "2015-01-01"]
-    change_df = change_df[change_df.index > "2015-01-01"]
+    t = Timer(secs, calculateDailyTotalValue)
+    t.start()
 
-    change_df = change_df.T
-    change_df = change_df.std(axis=1)
-
-    total_df = total_df.T
-    total_df = total_df.mean(axis=1)
-
-    df = pd.DataFrame(index = change_df.index)
-    df['change'] = change_df
-    df['total'] = total_df
-    plot = ggplot(df,aes(x = "total", y = "change")) + geom_point(alpha=0.2) + xlim(0,10000000)
-    print plot
-
-evaluate()
+scheduleTask()
