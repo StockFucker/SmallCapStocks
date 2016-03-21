@@ -50,7 +50,11 @@ def clearStock(stock,positions,user):
             return
 
 def buyStock(stock,each,user):
-    user.sell(stock,volume = each)
+    user.buy(stock,volume = each)
+
+def getIndexdf():
+    df = ts.get_h_data('000985', index=True)
+    return df
 
 def getTodaydf():
 
@@ -88,11 +92,20 @@ def filterST(df):
     df = df[df['name'].isin(st_names) == False]
     return df
 
+def shouldClear(df):
+    if df['close'][0] < 4500:
+        return False
+    ma1 = sum(df['close'][:20])/20
+    ma2 = sum(df['close'][1:21])/20
+    return ma1 < ma2
+    
+
 def getPrice(df,stock):
     return df[df.index == stock]['settlement'][0]
 
 def calculateDailyTotalValue():
     original_df = safe_try(getTodaydf)
+    index_df = safe_try(getIndexdf)
     user = safe_try(logIn)
     position = user.position
     holds = getHoldStocks(position)
@@ -104,7 +117,10 @@ def calculateDailyTotalValue():
     df = filterST(df)
     #3
     df = df[(df.index.isin(holds) == True) | (df['changepercent'] < 9.5)]
-    should_holds = df.index[:8]
+    should_holds = list(df.index[:8])
+    #4
+    if shouldClear(index_df):
+        should_holds = []
 
     holds_set = set(holds)
     should_holds_set = set(should_holds)
@@ -134,4 +150,4 @@ def scheduleTask():
     t = Timer(secs, calculateDailyTotalValue)
     t.start()
 
-scheduleTask()
+calculateDailyTotalValue()
