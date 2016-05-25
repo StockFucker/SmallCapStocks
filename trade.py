@@ -74,7 +74,7 @@ def getTodaydf():
         volume_df.sort(ascending=False,inplace = True)
         # isnan?
         try:
-            total_se[code] = float(list(volume_df["volume"])[0]) * float(row['settlement'])
+            total_se[code] = float(list(volume_df["volume"])[0]) * float(row['trade'])
         except Exception, e:
             print code
             print e
@@ -90,6 +90,8 @@ def filterST(df):
         if name.find("S") > 0:
             st_names.append(name)
     df = df[df['name'].isin(st_names) == False]
+    risk_notification = ['300028','300022','300143','300372','300126','300399','300380','300135','600656']
+    df = df[df.index.isin(risk_notification) == False]
     return df
 
 def shouldClear(df):
@@ -101,7 +103,7 @@ def shouldClear(df):
     
 
 def getPrice(df,stock):
-    return df[df.index == stock]['settlement'][0]
+    return df[df.index == stock]['trade'][0]
 
 def calculateDailyTotalValue():
     original_df = safe_try(getTodaydf)
@@ -117,6 +119,8 @@ def calculateDailyTotalValue():
     df = filterST(df)
     #3
     df = df[(df.index.isin(holds) == True) | (df['changepercent'] < 9.5)]
+    # df.to_csv('last_should_holds.csv')
+    print df
     should_holds = list(df.index[:8])
     #4
     if shouldClear(index_df):
@@ -142,7 +146,7 @@ def calculateDailyTotalValue():
 def scheduleTask():
     update_volume()
     x=datetime.today()
-    y=x.replace(day=x.day, hour=9, minute=25, second=0, microsecond=0)
+    y=x.replace(day=x.day, hour=9, minute=25, second=30, microsecond=0)
     delta_t=y-x
 
     secs=delta_t.seconds+1
@@ -150,4 +154,4 @@ def scheduleTask():
     t = Timer(secs, calculateDailyTotalValue)
     t.start()
 
-calculateDailyTotalValue()
+update_volume()

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import sys
-reload(sys) 
-sys.setdefaultencoding("utf8")
-sys.path.append('/Users/sgcy/anaconda/lib/python2.7/site-packages')
+# import sys
+# reload(sys) 
+# sys.setdefaultencoding("utf8")
+# sys.path.append('/Users/sgcy/anaconda/lib/python2.7/site-packages')
 
 from bs4 import BeautifulSoup
 import requests 
@@ -86,18 +86,18 @@ def update_volume():
     for stock in getStocks():
         try:
             getData2(stock)
-        except Exception, e:
-            print "[Error]:" + stock
-            print e
+        except Exception as e:
+            print("[Error]:" + stock)
+            print(e)
             errors.append(stock)
 
-    print "-----"
+    print("-----")
     for stock in errors:
         try:
             getData2(stock)
-            print "[fix]:" + stock
-        except Exception, e:
-            print stock
-            print e
+            print("[fix]:" + stock)
+        except Exception as e:
+            print(stock)
+            print(e)
 
 # go()
