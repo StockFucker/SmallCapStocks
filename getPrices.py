@@ -26,5 +26,3 @@ def getData(stock):
 def go(): 
     for stock in getStocks():
         getData(stock)
-
-go()
