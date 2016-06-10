@@ -4,9 +4,10 @@ SmallCapStocks
 _________________
     
 **getVolume.py:**                     
-         
-Return all stock volume infomation from sina or eastmoney.    
-
+Return all stock volume infomation from sina or eastmoney, mutil-threads.    
+           
+**getPrices.py:**                     
+Return all stock prices infomation throngh tushare API, mutil-threads.
 
 Dependency
 ===============
@@ -14,8 +15,10 @@ numpy
 pandas        
 [tushare](https://github.com/waditu/tushare)           
 [easytrader](https://github.com/shidenggui/easytrader)         
-[easyquotation](https://github.com/shidenggui/easyquotation)
-
+[easyquotation](https://github.com/shidenggui/easyquotation)         
+           
+It is a so restless thing to install those dependencies.        
+TODO: rewrite those code and reduce dependence.         
 
 
 LICENSE       
