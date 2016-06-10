@@ -4,6 +4,7 @@
 import os
 import re
 import csv
+import sys
 import string
 import urllib2
 import requests 
@@ -12,6 +13,8 @@ import pandas as pd
 import tushare as ts
 from collections import deque
 from bs4 import BeautifulSoup
+
+sys.path.append('../')
 from common import get_stock_code
 
 DATA_SOURCE = 'sina'

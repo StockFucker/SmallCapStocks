@@ -1,9 +1,12 @@
 # !/usr/bin/python2
 # coding: utf-8
 
+import sys
 import threading
 import tushare as ts
 import pandas as pd
+
+sys.path.append('../')
 from common import get_stock_code
 from collections import deque
 
