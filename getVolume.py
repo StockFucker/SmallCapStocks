@@ -91,7 +91,7 @@ def save_2_csv(data):
     with open(file_name, 'wb') as f:
         csv_writer = csv.writer(f,delimiter=',')
         info = ['date', 'volumes', 'stock_code']
-        csv_writer.writerrow(info)
+        csv_writer.writerow(info)
         for i in data:
             info = [k.replace(u'万股', '') for k in i]
             csv_writer.writerow(info)
