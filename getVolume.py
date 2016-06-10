@@ -74,7 +74,7 @@ def get_volume_data(urls):
                 info.append(stock_id.groups()[0])
                 volume_infos.append(info)
 
-    muilt_thread(worker, 30)
+    muilt_thread(worker, 40)
     return volume_infos
 
 def get_stocks():
