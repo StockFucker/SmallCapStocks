@@ -22,10 +22,12 @@ def get_price():
             print 'Get Price data from tushare: %s' % stock
             try:
                 df = ts.get_hist_data(stock) #两个日期之间的前复权数据
-            except Exception:
+                df = df[:2] if df.shape[0] >= 2 else df
+                df['stock_id'] = stock
+            except Exception, e:
+                print e
                 stocks.append(stock)
                 continue
-            df['stock_id'] = stock
             prices.append(df)
     muilt_thread(worker, 30)
     write_2_csv(prices)
@@ -40,7 +42,7 @@ def muilt_thread(target, num_threads, wait=True):
 
 def write_2_csv(prices):
     file_name = 'csv/prices.csv'
-    result = reduce(lambda x,y:x+y, prices)
+    result = reduce(lambda x,y:x.append(y), prices)
     if result is not None:
         result.to_csv(file_name)
 
