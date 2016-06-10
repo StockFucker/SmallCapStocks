@@ -6,7 +6,6 @@ import re
 import requests 
 import string
 import urllib2
-import csv
 import threading
 import pandas as pd
 import tushare as ts
