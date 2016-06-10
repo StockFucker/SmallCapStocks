@@ -22,13 +22,14 @@ def get_price():
             print 'Get Price data from tushare: %s' % stock
             try:
                 df = ts.get_hist_data(stock) #两个日期之间的前复权数据
-                df = df[:2] if df.shape[0] >= 2 else df
-                df['stock_id'] = stock
+                if df is not None:
+                    df = df[:2] if df.shape[0] >= 2 else df
+                    df['stock_id'] = stock
+                    prices.append(df)
             except Exception, e:
                 print e
                 stocks.append(stock)
                 continue
-            prices.append(df)
     muilt_thread(worker, 30)
     write_2_csv(prices)
 

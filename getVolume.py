@@ -3,14 +3,16 @@
 
 import os
 import re
-import requests 
+import csv
 import string
 import urllib2
+import requests 
 import threading
 import pandas as pd
 import tushare as ts
 from collections import deque
 from bs4 import BeautifulSoup
+from common import get_stock_code
 
 DATA_SOURCE = 'sina'
 
@@ -40,7 +42,7 @@ def clean_data(html):
         if DATA_SOURCE == 'sina':
             tds = tr.find_all('td')
             if len(tds) == 2:
-                texts = map(extract_text,tds)
+                texts = map(extract_text, tds)
                 results.append(texts)
         else:
             ths = tr.find_all('th')
@@ -69,30 +71,42 @@ def get_volume_data(urls):
                 break
             print 'Downloading: %s' % url
             stock_id = re.compile(r'stockid/(\d+)/stocktype').search(url)
-            html = D.get(url=url)
-            for info in  clean_data(html):
-                info.append(stock_id.groups()[0])
-                volume_infos.append(info)
+            try:
+                html = D.get(url=url)
+            except Exception, e:
+                print e
+                urls.append(url)
+                continue
+            infos = clean_data(html)
+            dates = [int(infos[i][0].replace('-', '')) for i in range(len(infos))]
+            recent_record = infos[dates.index(max(dates))]
+            recent_record.append(stock_id.groups()[0])
+            volume_infos.append(recent_record)
 
     muilt_thread(worker, 40)
     return volume_infos
 
-def get_stocks():
-    stocks_df = ts.get_stock_basics()
-    stocks = list(stocks_df.index)
-    return stocks
+def save_2_csv(data):
+    file_name = 'csv/volumes.csv'
+    with open(file_name, 'wb') as f:
+        csv_writer = csv.writer(f,delimiter=',')
+        info = ['date', 'volumes', 'stock_code']
+        csv_writer.writerrow()
+        for i in data:
+            info = [k.replace(u'万股', '') for k in i]
+            csv_writer.writerow(info)
         
 def update_volume():
     url = 'http://money.finance.sina.com.cn/corp/go.php/vCI_StockStructureHistory/stockid/%s/stocktype/TotalStock.phtml'\
             if DATA_SOURCE=='sina' else 'http://f10.eastmoney.com/f10_v2/CapitalStockStructure.aspx?code=%s'
     urls = deque()
-    for i in get_stocks():
+    for i in get_stock_code():
         int_stock = int(i)
         if DATA_SOURCE != 'sina':
             i = 'sh%s' % i if int_stock > 500000 else 'sz%s' % i
         urls.append(url % i)
     volume_data = get_volume_data(urls)
-    return volume_data
+    save_2_csv(volume_data)
 
 if __name__ == '__main__':
     update_volume()
