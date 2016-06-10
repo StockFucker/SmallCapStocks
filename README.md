@@ -8,6 +8,16 @@ _________________
 Return all stock volume infomation from sina or eastmoney.    
 
 
+Dependency
+===============
+numpy     
+pandas        
+tushare
+easytrader
+[easyquotation](https://github.com/shidenggui/easyquotation)
+
+
+
 LICENSE       
 ============
                
