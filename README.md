@@ -12,8 +12,8 @@ Dependency
 ===============
 numpy     
 pandas        
-tushare
-easytrader
+[tushare](https://github.com/waditu/tushare)           
+[easytrader](https://github.com/shidenggui/easytrader)         
 [easyquotation](https://github.com/shidenggui/easyquotation)
 
 
