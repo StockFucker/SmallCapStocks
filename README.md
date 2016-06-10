@@ -1,6 +1,6 @@
 SmallCapStocks
 ==========
-**It is a small cap stocks project**
+**It is a small cap stocks project**       
      
 _______________
 **getVolume.py:**
