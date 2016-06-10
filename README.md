@@ -1,6 +1,6 @@
 SmallCapStocks
 ==========
-**A small cap stocks project**                 
+**A small capacity stocks strategy, calculate the market value of stocks, and buy the minimum several stocks.**                 
 _________________
     
 **getVolume.py:**                     
