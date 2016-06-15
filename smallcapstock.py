@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/python2
+#coding: utf-8 
 
 import sys
 # sys.path.append('/Users/sgcy/anaconda/lib/python2.7/site-packages')
@@ -218,4 +219,5 @@ def scheduleTask():
     t = Timer(secs, calculateDailyTotalValue)
     t.start()
 
-calculateDailyTotalValue()
+if __name__ == '__main__':
+    calculateDailyTotalValue()
