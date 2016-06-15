@@ -10,6 +10,7 @@ class download:
         self.opener = urllib2.build_opener()
 
     def get(self, url):
+        print 'Downloading: %s' % url
         request = urllib2.Request(url)
         response = self.opener.open(request)
         html = response.read()

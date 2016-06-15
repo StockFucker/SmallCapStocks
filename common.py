@@ -3,13 +3,6 @@
 
 import re
 import requests
-#import tushare
-
-def get_stock_code():
-    stocks_df = tushare.get_stock_basics()
-    stocks = list(stocks_df.index)
-    stocks.sort()
-    return stocks
 
 def get_stock_prefix(stock_code):
     """判断股票ID对应的证券市场
