@@ -10,7 +10,7 @@ Return all stock volume infomation from sina or eastmoney, mutil-threads.
 Return all stock prices infomation throngh tushare API, mutil-threads.
         
 Speed up your clone, use following command:       
-     git clone --depth=1 https://github.com/xdbaqiao/SmallCapStocks.git        
+    git clone --depth=1 https://github.com/xdbaqiao/SmallCapStocks.git        
       
 Dependency
 ===============
@@ -18,7 +18,7 @@ numpy
 pandas        
 [tushare](https://github.com/waditu/tushare)           
 [easytrader](https://github.com/shidenggui/easytrader)         
-[easyquotation](https://github.com/shidenggui/easyquotation)         
+<del>[easyquotation]</del>(https://github.com/shidenggui/easyquotation)         
            
 It is a so restless thing to install those dependencies.        
 TODO: rewrite those code and reduce dependence.         
