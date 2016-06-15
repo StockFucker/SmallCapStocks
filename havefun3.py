@@ -10,7 +10,7 @@ import easytrader
 import pandas as pd
 from datetime import datetime
 from threading import Timer
-from collection import deque
+from collections import deque
 from common import *
 from get_current_price import get_current_price
 
