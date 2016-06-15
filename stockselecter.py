@@ -32,7 +32,7 @@ def select_stock():
     for i in get_stock_prefix_codes():
         names.append(SRC % i)
     # risk stocks
-    risk_stocks = risk_stocks()
+    list_risk_stocks = risk_stocks()
 
     def worker():
         while True:
@@ -64,7 +64,7 @@ def select_stock():
                 'limit_up': float(stock[47]),
                 'limit_down': float(stock[48])
             }
-            if 'S' not in bag['name'] and bag['code'] not in risk_stocks: 
+            if 'S' not in bag['name'] and bag['code'] not in list_risk_stocks and bag['market_value']: 
                 #filter stock with ST or risk notification
                 bag_price.append(bag)
 
