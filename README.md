@@ -9,8 +9,9 @@ Return all stock volume infomation from sina or eastmoney, mutil-threads.
 **getPrices.py:**                     
 Return all stock prices infomation throngh tushare API, mutil-threads.
 
-Speed up your clone, use following:
+Speed up your clone, use following:       
     git clone --depth=1 https://github.com/xdbaqiao/SmallCapStocks.git 
+      
 Dependency
 ===============
 numpy     
@@ -25,7 +26,6 @@ TODO: rewrite those code and reduce dependence.
 
 LICENSE       
 ============
-               
     Copyright 2016 StockFucker            
     
     All codes is licensed under GPLv2.             
