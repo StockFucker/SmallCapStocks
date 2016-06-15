@@ -1,6 +1,8 @@
 #!/usr/bin/python
-#coding:utf8
+# coding:utf8
+# return 8 minimum volume stocks, excluding ST and risk notification stocks
 
+import json
 import threading
 from collections import deque
 from common import *
@@ -10,6 +12,11 @@ THREADS_NUM = 800
 ADJUST_STOCK_NUM = 8
 SRC = 'http://qt.gtimg.cn/q=%s'
 
+def risk_stocks():
+    ''' get all risk notification stocks'''
+    url = 'http://hqdigi2.eastmoney.com/EM_Quote2010NumericApplication/index.aspx?type=s&sortType=C&sortRule=-1&pageSize=100&page=1&jsName=quote_123&style=2850022'
+    html = download().get(url)
+    return re.compile('"\d+,([^,]+),').findall(html) or []
 
 def muilt_thread(target, num_threads, wait=True):
     threads = [threading.Thread(target=target) for i in range(num_threads)]
@@ -24,6 +31,8 @@ def select_stock():
     names = deque()
     for i in get_stock_prefix_codes():
         names.append(SRC % i)
+    # risk stocks
+    risk_stocks = risk_stocks()
 
     def worker():
         while True:
@@ -36,9 +45,6 @@ def select_stock():
             except Exception, e:
                 names.append(url)
                 continue
-
-            print 'Downloading %s' % url
-
             stock = html.split('~')
             if len(stock) <= 49:
                 continue
@@ -58,7 +64,9 @@ def select_stock():
                 'limit_up': float(stock[47]),
                 'limit_down': float(stock[48])
             }
-            bag_price.append(bag)
+            if 'S' not in bag['name'] and bag['code'] not in risk_stocks: 
+                #filter stock with ST or risk notification
+                bag_price.append(bag)
 
     muilt_thread(worker, THREADS_NUM)
     bag_price = sorted(bag_price, key = lambda x:x['market_value'])
