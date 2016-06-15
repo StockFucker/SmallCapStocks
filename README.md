@@ -20,7 +20,8 @@ pandas
 [tushare](https://github.com/waditu/tushare)           
 [easytrader](https://github.com/shidenggui/easytrader)         
 <del>[easyquotation]</del>       
-           
+                
+        
 It is a so restless thing to install those dependencies.        
 TODO: rewrite those code and reduce dependence.         
 

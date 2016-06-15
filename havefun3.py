@@ -3,14 +3,16 @@
 import sys
 # sys.path.append('/Users/sgcy/anaconda/lib/python2.7/site-packages')
 
-import pandas as pd
 import math
 import json
+import time
 import easytrader
+import pandas as pd
 from datetime import datetime
 from threading import Timer
-import easyquotation
-import time
+from collection import deque
+from common import *
+from get_current_price import get_current_price
 
 def read_csv(file_name):
     try:
@@ -79,8 +81,7 @@ def stockFilter(stock):
     return head == "0" or head == "3" or head == "6"
 
 def getTodaydf():
-    quotation = easyquotation.use('qq')
-    data = quotation.all
+    data = get_current_price()
     df = pd.DataFrame(data)
     df = df.T
     to_drop = list(df.columns)
