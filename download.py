@@ -1,0 +1,16 @@
+#!/usr/bin/python2
+# coding:utf8
+
+import urllib2
+
+class download:
+    def __init__(self):
+        self.user_agent = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:5.0) Gecko/20100101 Firefox/5.0'
+        self.headers = {'User-Agent': self.user_agent, 'Accept-encoding':'gzip, deflate'}
+        self.opener = urllib2.build_opener()
+
+    def get(self, url):
+        request = urllib2.Request(url)
+        response = self.opener.open(request)
+        html = response.read()
+        return html
