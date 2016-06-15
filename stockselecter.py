@@ -6,12 +6,25 @@ from collections import deque
 from common import *
 from download import download
 
-def get_current_price():
+THREADS_NUM = 800
+ADJUST_STOCK_NUM = 8
+SRC = 'http://qt.gtimg.cn/q=%s'
+
+
+def muilt_thread(target, num_threads, wait=True):
+    threads = [threading.Thread(target=target) for i in range(num_threads)]
+    for thread in threads:
+        thread.start()
+    if wait:
+        for thread in threads:
+            thread.join()
+
+def select_stock():
     bag_price = []
-    src = 'http://qt.gtimg.cn/q=%s'
     names = deque()
     for i in get_stock_prefix_codes():
-        names.append(src % i)
+        names.append(SRC % i)
+
     def worker():
         while True:
             try:
@@ -46,16 +59,11 @@ def get_current_price():
                 'limit_down': float(stock[48])
             }
             bag_price.append(bag)
-    muilt_thread(worker, 800)
-    return bag_price
 
-def muilt_thread(target, num_threads, wait=True):
-    threads = [threading.Thread(target=target) for i in range(num_threads)]
-    for thread in threads:
-        thread.start()
-    if wait:
-        for thread in threads:
-            thread.join()
+    muilt_thread(worker, THREADS_NUM)
+    bag_price = sorted(bag_price, key = lambda x:x['market_value'])
+    return bag_price[:ADJUST_STOCK_NUM]
+
 
 if __name__ == '__main__':
-    print get_today_all_stocks_price()
+    print select_stock()
