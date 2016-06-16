@@ -1,6 +1,7 @@
 SmallCapStocks
 ==========
 **A small capacity stocks strategy, calculate the market value of stocks, and buy the minimum several stocks.**                 
+**SUPPORT python2**
 _________________
     
 1\. Including stocks start with 0, 3, 6           
@@ -11,10 +12,17 @@ _________________
 Dependency
 ===============
 [easytrader](https://github.com/shidenggui/easytrader)         
+
+Install easytrader, you need install logbook, demjson, use following command:         
+       sudo pip install logbook 
+       sudo pip install demjson
       
 <del>numpy</del>      
+      
 <del>pandas</del>         
+     
 <del>tushare</del>
+      
 <del>easyquotation</del>       
                 
         
