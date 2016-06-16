@@ -7,7 +7,7 @@ import easytrader
 PLATFORM = 'xq'
 CONFIG_FILE = 'account.json'
 
-class trade:
+class trader:
     def __init__(self):
         self.user = easytrader.use(PLATFORM)
         self.user.prepare(CONFIG_FILE)
@@ -23,5 +23,5 @@ class trade:
         self.user.sell(stock, amount, price)
 
 if __name__ == '__main__':
-    t = trade()
+    t = trader()
     t.get_holding_stocks()
