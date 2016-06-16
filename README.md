@@ -11,8 +11,9 @@ _________________
 Dependency
 ===============
 [easytrader](https://github.com/shidenggui/easytrader)         
-<del>numpy</del>     
-<del>pandas</del>        
+      
+<del>numpy</del>      
+<del>pandas</del>         
 <del>tushare</del>
 <del>easyquotation</del>       
                 
