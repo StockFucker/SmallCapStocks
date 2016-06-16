@@ -4,8 +4,8 @@
 
 import json
 import threading
-from collections import deque
 from common import *
+from collections import deque
 from download import download
 
 THREADS_NUM = 800
@@ -25,7 +25,7 @@ def muilt_thread(target, num_threads, wait=True):
         for thread in threads:
             thread.join()
 
-def select_stock(stock_num=10):
+def select(stock_num=10):
     uniq_list = []
     bag_price = []
     names = deque()
