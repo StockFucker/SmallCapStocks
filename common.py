@@ -23,16 +23,24 @@ def get_stock_prefix(stock_code):
         return 'sh'
     return 'sz'
 
-def get_all_stock_codes():
-    """获取所有股票 ID"""
+def get_all_stock_codes(is_A=False):
+    """默认获取所有A股股票 ID"""
+    result = []
     all_stock_codes_url = 'http://www.shdjt.com/js/lib/astock.js'
     grep_stock_codes = re.compile('~(\d+)`')
     response = requests.get(all_stock_codes_url)
-    stock_codes = grep_stock_codes.findall(response.text)
-    return stock_codes
+    stock_codes = grep_stock_codes.findall(response.text) or []
+    stock_codes = list(set(stock_codes))
+    if not is_A:
+        return stock_codes
+    else:
+        for i in stock_codes:
+            if i.startswith('0') or i.startswith('3') or i.startswith('6'):
+                result.append(i)
+        return result
 
-def get_stock_prefix_codes():
-    return [get_stock_prefix(str(i))+str(i)  for i in get_all_stock_codes()]
+def get_stock_prefix_codes(is_A=False):
+    return [get_stock_prefix(str(i))+str(i)  for i in get_all_stock_codes(is_A)]
 
 if __name__ == '__main__':
     print get_stock_prefix_codes()

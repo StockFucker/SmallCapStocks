@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # coding:utf8
-# return 8 minimum volume stocks, excluding ST and risk notification stocks
+# return 10 minimum volume stocks, excluding ST and risk notification stocks
 
 import json
 import threading
@@ -9,7 +9,6 @@ from common import *
 from download import download
 
 THREADS_NUM = 800
-ADJUST_STOCK_NUM = 8
 SRC = 'http://qt.gtimg.cn/q=%s'
 
 def risk_stocks():
@@ -26,10 +25,11 @@ def muilt_thread(target, num_threads, wait=True):
         for thread in threads:
             thread.join()
 
-def select_stock():
+def select_stock(stock_num=10):
+    uniq_list = []
     bag_price = []
     names = deque()
-    for i in get_stock_prefix_codes():
+    for i in get_stock_prefix_codes(is_A=True):
         names.append(SRC % i)
     # risk stocks
     list_risk_stocks = risk_stocks()
@@ -54,7 +54,7 @@ def select_stock():
                 'now': float(stock[3]),
                 'close': float(stock[4]),
                 'open': float(stock[5]),
-                'volume': float(stock[6]) * 100,
+                'volume': int(stock[6]),
                 'up_down': float(stock[31]),
                 'up_down(%)': float(stock[32]),
                 'high': float(stock[33]),
@@ -66,11 +66,14 @@ def select_stock():
             }
             if 'S' not in bag['name'] and bag['code'] not in list_risk_stocks and bag['market_value']: 
                 #filter stock with ST or risk notification
-                bag_price.append(bag)
+                if bag['now'] != bag['limit_up'] and bag['volume'] != 0 and bag['code'] not in uniq_list:
+                    # not limit up and suspended
+                    uniq_list.append(bag['code'])
+                    bag_price.append(bag)
 
     muilt_thread(worker, THREADS_NUM)
     bag_price = sorted(bag_price, key = lambda x:x['market_value'])
-    return bag_price[:ADJUST_STOCK_NUM]
+    return bag_price[:stock_num]
 
 
 if __name__ == '__main__':
