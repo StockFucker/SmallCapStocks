@@ -3,6 +3,7 @@
 
 import re
 import requests
+from download import download
 
 def get_stock_prefix(stock_code):
     """判断股票ID对应的证券市场
@@ -26,11 +27,11 @@ def get_stock_prefix(stock_code):
 def get_all_stock_codes(is_A=False):
     """默认获取所有A股股票 ID"""
     result = []
-    all_stock_codes_url = 'http://www.shdjt.com/js/lib/astock.js'
-    grep_stock_codes = re.compile('~(\d+)`')
-    response = requests.get(all_stock_codes_url)
-    stock_codes = grep_stock_codes.findall(response.text) or []
+    url = 'http://www.shdjt.com/js/lib/astock.js'
+    html = download().get(url)
+    stock_codes = re.compile('~(\d+)`').findall(html) or []
     stock_codes = list(set(stock_codes))
+
     if not is_A:
         return stock_codes
     else:
