@@ -10,17 +10,13 @@ _________________
       
 Dependency
 ===============
-numpy     
-pandas        
-[tushare](https://github.com/waditu/tushare)           
 [easytrader](https://github.com/shidenggui/easytrader)         
-<del>[easyquotation]</del>       
+<del>numpy</del>     
+<del>pandas</del>        
+<del>tushare</del>
+<del>easyquotation</del>       
                 
         
-It is a so restless thing to install those dependencies.        
-TODO: rewrite those code and reduce dependence.         
-
-
 LICENSE       
 ============
     Copyright 2016 StockFucker            
