@@ -14,16 +14,14 @@ Dependency
 [easytrader](https://github.com/shidenggui/easytrader)         
 
 Install easytrader, you need install logbook, demjson, use following command:         
-       sudo pip install logbook 
+       
+       sudo pip install logbook         
        sudo pip install demjson
       
-<del>numpy</del>      
-      
-<del>pandas</del>         
-     
-<del>tushare</del>
-      
-<del>easyquotation</del>       
+<del>[numpy]</del>      
+<del>[pandas]</del>         
+<del>[tushare]</del>
+<del>[easyquotation]</del>       
                 
         
 LICENSE       
