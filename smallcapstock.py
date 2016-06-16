@@ -26,12 +26,12 @@ class smallCapStock:
         # 持仓股票
         holding_stocks = self.trader.holding.keys()
 
-        # 清仓股票 
+        # 清仓 
         self.sell_out([i for i in holding_stocks if i not in target_stocks])
-        # 开仓股票
+        # 开仓
         self.buy_in([i for i in target_stocks if i not in holding_stocks])
 
-        # 剩余余额买价格最低的标的
+        # todo 剩余余额买价格最低的标的
 
     def sell_out(self, stocks):
         ''' 清仓'''
@@ -46,13 +46,11 @@ class smallCapStock:
         ''' 开仓 '''
         # 账户可用余额
         enable_balance = self.trader.enable_balance
-        print self.trader.balance
+        #print self.trader.balance
         for stock in stocks:
             current_price = float(self.stocks_info.get(stock).get('now'))
             amount = int(enable_balance/self.target_num/current_price/100) * 100
             self.trader.buy(stock, amount, current_price)
-
-
 
 if __name__ == '__main__':
     scs = smallCapStock()
