@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # coding:utf8
-# return 10 minimum volume stocks, excluding ST and risk notification stocks
+# return all stocks information include price and voloum, excluding ST and risk notification stocks
 
 import json
 import threading
@@ -25,7 +25,7 @@ def muilt_thread(target, num_threads, wait=True):
         for thread in threads:
             thread.join()
 
-def select(stock_num=10):
+def get_prices():
     uniq_list = []
     bag_price = []
     names = deque()
@@ -70,11 +70,33 @@ def select(stock_num=10):
                     # not limit up and suspended
                     uniq_list.append(bag['code'])
                     bag_price.append(bag)
-
     muilt_thread(worker, THREADS_NUM)
     bag_price = sorted(bag_price, key = lambda x:x['market_value'])
-    return bag_price[:stock_num]
+    return bag_price
 
+def select(read_cache=False, write_cache=True):
+    if read_cache:
+        result = []
+        with open('.cache') as f:
+            for inum, i in enumerate(f):
+                i = i.strip()
+                bag = {}
+                if inum == 0:
+                    FIELDS = i.split(',')
+                    continue
+                for jnum, j in enumerate(i.split(',')):
+                    bag[FIELDS[jnum]] = j
+                result.append(bag)
+        return {i['code']:i for i in result}
+
+    result = get_prices()
+
+    if write_cache:
+        with open('.cache', 'w') as f:
+             for inum, i in enumerate(result):
+                 info = ','.join([str(k) for k in i.keys()]) if inum == 0 else ','.join([str(k) for k in i.values()])
+                 f.write('%s\n' % info)
+    return {i['code']:i for i in result}
 
 if __name__ == '__main__':
-    print select_stock()
+    print select(read_cache=True)

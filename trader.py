@@ -11,10 +11,9 @@ class trader:
     def __init__(self):
         self.user = easytrader.use(PLATFORM)
         self.user.prepare(CONFIG_FILE)
-        self.holding = self.user.position
-
-    def get_holding_stocks(self):
-        return [i.get('stock_code') for i in self.holding]
+        self.holding = {i['stock_code'][2:]:i for i in self.user.position}
+        self.balance = self.user.balance[0]
+        self.enable_balance = self.balance['enable_balance']
 
     def buy(self, stock, amount, price):
         self.user.buy(stock, amount, price)
@@ -24,4 +23,4 @@ class trader:
 
 if __name__ == '__main__':
     t = trader()
-    t.get_holding_stocks()
+    print t.holding
