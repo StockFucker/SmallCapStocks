@@ -3,23 +3,21 @@ SmallCapStocks
 **A small capacity stocks strategy, calculate the market value of stocks, and buy the minimum several stocks.**                 
 _________________
     
-Speed up your clone, use following command:       
-      
-    git clone --depth=1 https://github.com/xdbaqiao/SmallCapStocks.git        
+1\. Including stocks start with 0, 3, 6           
+2\. Excluding stocks with ST or risk notification from [eastmoney](http://quote.eastmoney.com/center/list.html#2850022_0)                   
+3\. Excluding stocks with suspended or limit up                      
+       
       
 Dependency
 ===============
-numpy     
-pandas        
-[tushare](https://github.com/waditu/tushare)           
 [easytrader](https://github.com/shidenggui/easytrader)         
-<del>[easyquotation]</del>       
+      
+<del>numpy</del>      
+<del>pandas</del>         
+<del>tushare</del>
+<del>easyquotation</del>       
                 
         
-It is a so restless thing to install those dependencies.        
-TODO: rewrite those code and reduce dependence.         
-
-
 LICENSE       
 ============
     Copyright 2016 StockFucker            
