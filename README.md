@@ -3,9 +3,10 @@ SmallCapStocks
 **A small capacity stocks strategy, calculate the market value of stocks, and buy the minimum several stocks.**                 
 _________________
     
-Speed up your clone, use following command:       
-      
-    git clone --depth=1 https://github.com/xdbaqiao/SmallCapStocks.git        
+1\. Including stocks start with 0, 3, 6           
+2\. Excluding stocks with ST or risk notification from [eastmoney](http://quote.eastmoney.com/center/list.html#2850022_0)                   
+3\. Excluding stocks with suspended or limit up                      
+       
       
 Dependency
 ===============
