@@ -16,10 +16,12 @@ class trader:
         self.enable_balance = self.balance['enable_balance']
 
     def buy(self, stock, amount, price):
-        self.user.buy(stock, amount, price)
+        print 'Buy stock: %s, amount: %s, price: %s' % (stock, amount, price)
+        result = self.user.buy(stock, amount, price)
 
     def sell(self, stock, amount, price):
-        self.user.sell(stock, amount, price)
+        print 'Sell stock: %s, amount: %s, price: %s' % (stock, amount, price)
+        result = self.user.sell(stock, amount, price)
 
 if __name__ == '__main__':
     t = trader()
