@@ -5,6 +5,9 @@ import re
 import requests
 from download import download
 
+FIVE_PRICE_URL = 'http://nuff.eastmoney.com/EM_Finance2015TradeInterface/JS.ashx?id=%s'
+TEN_PRICE_URL = 'https://app.leverfun.com/timelyInfo/timelyOrderForm?stockCode=%s'
+
 def get_stock_prefix(stock_code):
     """判断股票ID对应的证券市场
     匹配规则
@@ -43,5 +46,51 @@ def get_all_stock_codes(is_A=False):
 def get_stock_prefix_codes(is_A=False):
     return [get_stock_prefix(str(i))+str(i)  for i in get_all_stock_codes(is_A)]
 
+def get_current_five_price(stock):
+    ''' 从东方财富获取当前时间五档价格数据 
+        注: 返回的委托量为买/卖委托总量
+    '''
+    bag_prices = {}
+    url = FIVE_PRICE_URL % stock + '1' if stock.startswith('6') else FIVE_PRICE_URL % stock + '2'
+    html = download().get(url)
+    m = re.compile('"Value":\[([^\]]+)\]').search(html) if html else ''
+    if m:
+        string = m.groups()[0]
+        infos = string.split('","')
+        assert len(infos) > 50
+
+        for i in range(10):
+            bag_prices[infos[i+3]] = sum([ int(k) for k in infos[13+i/5*5:i+14] ])
+        if infos[3] == '0.00':
+            # 跌停
+            bag_prices['0.00'] = -1
+        elif infos[8] == '0.00':
+            # 涨停
+            bag_prices['0.00'] = -2
+    return bag_prices
+
+def get_current_ten_price(stock):
+    ''' 获取当前时间十档价格数据 
+        注: 返回的委托量为买/卖委托总量
+    '''
+    bag_prices = {}
+    url =  TEN_PRICE_URL % stock
+    html = download().get(url)
+    prices = re.compile(r'"price":([\d\.]+),').findall(html)
+    volumes = re.compile(r'"volume":([\d\.]+)\}').findall(html)
+    assert len(prices) == len(volumes)
+    assert prices
+    for inum, i in enumerate(prices):
+        if i == '0.0':
+            i = '0.00'
+        bag_prices[i] = sum([ int(float(k)) for k in volumes[inum/10*10:inum+1] ])
+    if prices[0] == '0.00':
+        # 跌停
+        bag_prices['0.00'] = -1
+    elif prices[10] == '0.0':
+        # 涨停
+        bag_prices['0.00'] = -2
+    return bag_prices
+
 if __name__ == '__main__':
-    print get_stock_prefix_codes()
+    print get_current_ten_price('300151')

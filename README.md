@@ -5,18 +5,25 @@ SmallCapStocks
 _________________
     
 1\. Including stocks start with 0, 3, 6           
-2\. Excluding stocks with ST or risk notification from [eastmoney](http://quote.eastmoney.com/center/list.html#2850022_0)                   
+2\. Excluding stocks with ST or risk notification from [sse, shanghai stock exchange](http://www.sse.com.cn/disclosure/listedinfo/riskplate/list/)                   
 3\. Excluding stocks with suspended or limit up                      
        
-      
+        
+Trade price decision
+======================
+
+1\.Get ten gear price from [leverfun API](https://app.leverfun.com/timelyInfo/timelyOrderForm?stockCode=300151), and comparison the own balance and commission volumes, return the corresponding price         
+2\.Premium paramter is important, avoid risk of the commission volumes equal to own banlance, the initial value of premium is 1.02.                 
+       
 Dependency
 ===============
 [easytrader](https://github.com/shidenggui/easytrader)         
 
-Install easytrader, you need install logbook, demjson, use following command:         
+Install easytrader, you need install logbook, demjson, java, use following command:         
        
        sudo pip install logbook         
        sudo pip install demjson
+       sudo yum/pacman/apt-get install java
       
 <del>[numpy]</del>      
 <del>[pandas]</del>         
