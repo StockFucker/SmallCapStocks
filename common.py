@@ -46,6 +46,9 @@ def get_stock_prefix_codes(is_A=False):
     return [get_stock_prefix(str(i))+str(i)  for i in get_all_stock_codes(is_A)]
 
 def get_current_five_price(stock):
+    ''' 从东方财富获取当前时间五档价格数据 
+        注: 返回的委托量为买/卖委托总量
+    '''
     prices = {}
     url = FIVE_PRICE_URL % stock
     html = download().get(url)
@@ -57,7 +60,7 @@ def get_current_five_price(stock):
             print 'Five price Error, %s' % stock
             return prices
         for i in range(10):
-            prices[infos[i+3]] = infos[i+13]
+            prices[infos[i+3]] = sum([ int(k) for k in infos[13+i/5*5:i+14] ])
     return prices
 
 if __name__ == '__main__':

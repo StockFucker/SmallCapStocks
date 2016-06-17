@@ -5,6 +5,7 @@ from __future__ import division
 
 from selector import select
 from trader import trader
+from common import get_current_five_price
 
 class smallCapStock:
     def __init__(self, target_num=10):
@@ -47,9 +48,8 @@ class smallCapStock:
         for stock in stocks:
             amount = self.trader.holding.get(stock).get('enable_amount') or 0
             if not first or (first and amount > 100):
-                current_price = float(self.stocks_info.get(stock).get('now'))
-                trade_price = float(current_price) - 0.01
-                self.trader.sell(stock, amount, current_price)
+                trade_price = self.trade_price_decision(stock, 'sell')
+                self.trader.sell(stock, amount, trade_price)
 
     def buy_in(self, stocks, first=True):
         ''' 开仓 
@@ -62,11 +62,23 @@ class smallCapStock:
         enable_balance = self.trader.enable_balance
         #print self.trader.balance
         for stock in stocks:
-            current_price = float(self.stocks_info.get(stock).get('now'))
-            amount = int(enable_balance/self.target_num/current_price/100) * 100 if first else\
-                    int(enable_balance/current_price/100) * 100
+            trade_price = trade_price_decision(stock, 'buy')
+            amount = int(enable_balance/self.target_num/trade_price/100) * 100 if first else\
+                    int(enable_balance/trade_price/100) * 100
             if amount>=100:
-                self.trader.buy(stock, amount, current_price)
+                self.trader.buy(stock, amount, trade_price)
+
+    def trade_price_decision(self, stock, direction):
+        '''交易价格决策'''
+        # 五档数据
+        prices = get_current_five_price(stock)
+        sort_prices = sorted(a.keys(), key = lambda x:float(x))
+        if direction == 'sell':
+            # 卖 取买一
+            return sort_prices[4]
+        else:
+            # 买 取卖一
+            return sort_prices[5]
 
 if __name__ == '__main__':
     scs = smallCapStock()
