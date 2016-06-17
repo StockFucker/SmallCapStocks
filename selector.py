@@ -99,5 +99,4 @@ def select(read_cache=False, write_cache=True):
     return {i['code']:i for i in result}
 
 if __name__ == '__main__':
-    #print select(read_cache=True)
-    print risk_stocks()
+    print select(read_cache=False)

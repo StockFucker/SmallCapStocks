@@ -43,5 +43,20 @@ def get_all_stock_codes(is_A=False):
 def get_stock_prefix_codes(is_A=False):
     return [get_stock_prefix(str(i))+str(i)  for i in get_all_stock_codes(is_A)]
 
+def get_current_five_price(stock):
+    prices = {}
+    url = FIVE_PRICE_URL % stock
+    html = download().get(url)
+    m = re.compile('"Value":\[([^\]]+)\]').search(html) if html else ''
+    if m:
+        string = m.groups()[0]
+        infos = string.split('","')
+        if len(infos) <50:
+            print 'Five price Error, %s' % stock
+            return prices
+        for i in range(10):
+            prices[infos[i+3]] = infos[i+13]
+    return prices
+
 if __name__ == '__main__':
-    print get_stock_prefix_codes()
+    print get_current_five_price('6033391')
