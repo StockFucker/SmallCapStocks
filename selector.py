@@ -47,6 +47,7 @@ def get_prices():
                 continue
             stock = html.split('~')
             if len(stock) <= 49:
+                print 'Error %s' % url
                 continue
             bag = {
                 'name': stock[1],
@@ -94,7 +95,10 @@ def select(read_cache=False, write_cache=True):
     if write_cache:
         with open('.cache', 'w') as f:
              for inum, i in enumerate(result):
-                 info = ','.join([str(k) for k in i.keys()]) if inum == 0 else ','.join([str(k) for k in i.values()])
+                 if inum == 0:
+                     info = ','.join([str(k) for k in i.keys()])
+                     f.write('%s\n' % info)
+                 info = ','.join([str(k) for k in i.values()])
                  f.write('%s\n' % info)
     return {i['code']:i for i in result}
 
