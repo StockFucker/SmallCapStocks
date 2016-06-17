@@ -4,7 +4,7 @@
 import re
 import easytrader
 
-PLATFORM = 'xq'
+PLATFORM = 'ht'
 CONFIG_FILE = 'account.json'
 
 class trader:

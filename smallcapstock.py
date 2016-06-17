@@ -9,7 +9,7 @@ from trader import trader
 class smallCapStock:
     def __init__(self, target_num=10):
         ''' 当日全部股票 '''
-        self.stocks_info = select(read_cache=False)
+        self.stocks_info = select(read_cache=True)
         self.target_num = target_num
         self.trader = trader()
 

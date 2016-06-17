@@ -8,7 +8,7 @@ _________________
 2\. Excluding stocks with ST or risk notification from [sse, shanghai stock exchange](http://www.sse.com.cn/disclosure/listedinfo/riskplate/list/)                   
 3\. Excluding stocks with suspended or limit up                      
        
-      
+       
 Dependency
 ===============
 [easytrader](https://github.com/shidenggui/easytrader)         
