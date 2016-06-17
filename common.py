@@ -5,6 +5,8 @@ import re
 import requests
 from download import download
 
+FIVE_PRICE_URL = 'http://nuff.eastmoney.com/EM_Finance2015TradeInterface/JS.ashx?id=%s'''
+
 def get_stock_prefix(stock_code):
     """判断股票ID对应的证券市场
     匹配规则
