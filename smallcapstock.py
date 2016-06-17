@@ -11,7 +11,7 @@ class smallCapStock:
         self.target_num = target_num
         self.trader = trader()
         ''' 当日全部股票 '''
-        self.stocks_info = select(read_cache=True)
+        self.stocks_info = select(read_cache=False)
 
     def min_volume_stocks(self):
         sort_stocks = sorted(self.stocks_info.values(), key=lambda x: float(x['market_value']))
