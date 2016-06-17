@@ -10,7 +10,7 @@ _________________
        
         
 Trade price decision
-______________________
+======================
 
 1\.Get ten gear price from [leverfun API](https://app.leverfun.com/timelyInfo/timelyOrderForm?stockCode=300151), and comparison the own balance and commission volumes, return the corresponding price         
 2\.Premium paramter is important, avoid risk of the commission volumes equal to own banlance, the initial value of premium is 1.02.                 
@@ -19,10 +19,11 @@ Dependency
 ===============
 [easytrader](https://github.com/shidenggui/easytrader)         
 
-Install easytrader, you need install logbook, demjson, use following command:         
+Install easytrader, you need install logbook, demjson, java, use following command:         
        
        sudo pip install logbook         
        sudo pip install demjson
+       sudo yum/pacman/apt-get install java
       
 <del>[numpy]</del>      
 <del>[pandas]</del>         
