@@ -13,9 +13,9 @@ SRC = 'http://qt.gtimg.cn/q=%s'
 
 def risk_stocks():
     ''' get all risk notification stocks'''
-    url = 'http://hqdigi2.eastmoney.com/EM_Quote2010NumericApplication/index.aspx?type=s&sortType=C&sortRule=-1&pageSize=100&page=1&jsName=quote_123&style=2850022'
+    url = 'http://www.sse.com.cn/disclosure/listedinfo/riskplate/list/'
     html = download().get(url)
-    return re.compile('"\d+,([^,]+),').findall(html) or []
+    return re.compile('shtml\?COMPANY_CODE=[^"]+">(\d+)<').findall(html) or []
 
 def muilt_thread(target, num_threads, wait=True):
     threads = [threading.Thread(target=target) for i in range(num_threads)]
@@ -94,9 +94,12 @@ def select(read_cache=False, write_cache=True):
     if write_cache:
         with open('.cache', 'w') as f:
              for inum, i in enumerate(result):
-                 info = ','.join([str(k) for k in i.keys()]) if inum == 0 else ','.join([str(k) for k in i.values()])
+                 if inum == 0:
+                     info = ','.join([str(k) for k in i.keys()]) 
+                     f.write('%s\n' % info)
+                 info = ','.join([str(k) for k in i.values()])
                  f.write('%s\n' % info)
     return {i['code']:i for i in result}
 
 if __name__ == '__main__':
-    print select(read_cache=True)
+    print select(read_cache=False)
