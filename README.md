@@ -8,6 +8,12 @@ _________________
 2\. Excluding stocks with ST or risk notification from [sse, shanghai stock exchange](http://www.sse.com.cn/disclosure/listedinfo/riskplate/list/)                   
 3\. Excluding stocks with suspended or limit up                      
        
+        
+Trade price decision
+______________________
+
+1\.Get ten gear price from [leverfun API](https://app.leverfun.com/timelyInfo/timelyOrderForm?stockCode=300151), and comparison the own balance and commission volumes, return the corresponding price         
+2\.Premium paramter is important, avoid risk of the commission volumes equal to own banlance, the initial value of premium is 1.02.                 
        
 Dependency
 ===============
