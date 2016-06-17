@@ -81,14 +81,16 @@ def get_current_ten_price(stock):
     assert len(prices) == len(volumes)
     assert prices
     for inum, i in enumerate(prices):
+        if i == '0.0':
+            i = '0.00'
         bag_prices[i] = sum([ int(float(k)) for k in volumes[inum/10*10:inum+1] ])
-    if prices[0] == '0.0':
+    if prices[0] == '0.00':
         # 跌停
-        bag_prices['0.0'] = -1
-    else:
+        bag_prices['0.00'] = -1
+    elif prices[10] == '0.0':
         # 涨停
-        bag_prices['0.0'] = -2
+        bag_prices['0.00'] = -2
     return bag_prices
 
 if __name__ == '__main__':
-    print get_current_ten_price('000850')
+    print get_current_ten_price('300151')
