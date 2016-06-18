@@ -85,8 +85,8 @@ class smallCapStock:
                 raise Exception('Limit down, can not sell! Stock code: %s' % stock )
             
             # 涨停或正常交易
-            price = sort_prices[int(prices_num/2)-1] if prices_num == 10 or prices_num == 20 else sort_prices[-1]
-            num_range = int(prices_num/2) if prices_num == 10 or prices_num == 20 else prices_num
+            price = sort_prices[int(prices_num/2)-1] if prices_num%5 == 0  else sort_prices[-1]
+            num_range = int(prices_num/2) if prices_num%5 == 0 else prices_num
             for k in range(num_range):
                 idx = num_range-k-1
                 volumes = sort_volumes[idx]
@@ -105,8 +105,8 @@ class smallCapStock:
                 raise Exception('Limit up, can not buy! Stock code: %s' % stock )
 
             # 跌停 或正常交易
-            price = sort_volumes[int(prices_num/2):] if prices_num == 10 or prices_num == 20 else sort_prices[1]
-            num_range = int(prices_num/2) if prices_num == 10 or prices_num == 20 else prices_num
+            price = sort_volumes[int(prices_num/2):] if prices_num%5 == 0 else sort_prices[1]
+            num_range = int(prices_num/2) if prices_num%5 == 0 else prices_num
             for k in range(num_range):
                 idx = num_range+k
                 volumes = sort_volumes[idx]
