@@ -10,6 +10,9 @@ from common import get_current_five_price, get_current_ten_price
 # 交易 溢价
 PREMIUM = 1.02
 
+LIMIT_DOWN = -1
+LIMIT_UP = -2
+
 class smallCapStock:
     def __init__(self, target_num=10):
         ''' 当日全部股票 '''
@@ -80,7 +83,7 @@ class smallCapStock:
         sort_volumes = [prices[i] for i in sort_prices]
         if direction == 'sell':
             '''卖出'''
-            if '0.00' in sort_prices and -1 in sort_volumes:
+            if '0.00' in sort_prices and LIMIT_DOWN in sort_volumes:
                 # 跌停
                 raise Exception('Limit down, can not sell! Stock code: %s' % stock )
             
@@ -100,7 +103,7 @@ class smallCapStock:
             return None, float(price)
         else:
             '''买入'''
-            if '0.00' in sort_prices and -2 in sort_volumes:
+            if '0.00' in sort_prices and LIMIT_UP in sort_volumes:
                 # 涨停
                 raise Exception('Limit up, can not buy! Stock code: %s' % stock )
 

@@ -8,6 +8,9 @@ from download import download
 FIVE_PRICE_URL = 'http://nuff.eastmoney.com/EM_Finance2015TradeInterface/JS.ashx?id=%s'
 TEN_PRICE_URL = 'https://app.leverfun.com/timelyInfo/timelyOrderForm?stockCode=%s'
 
+LIMIT_DOWN = -1
+LIMIT_UP = -2
+
 def get_stock_prefix(stock_code):
     """判断股票ID对应的证券市场
     匹配规则
@@ -86,10 +89,10 @@ def get_current_ten_price(stock):
         bag_prices[i] = sum([ int(float(k)) for k in volumes[inum/10*10:inum+1] ])
     if prices[0] == '0.00':
         # 跌停
-        bag_prices['0.00'] = -1
+        bag_prices['0.00'] = LIMIT_DOWN
     elif prices[10] == '0.0':
         # 涨停
-        bag_prices['0.00'] = -2
+        bag_prices['0.00'] = LIMIT_UP
     return bag_prices
 
 if __name__ == '__main__':
