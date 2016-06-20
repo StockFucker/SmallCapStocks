@@ -39,7 +39,7 @@ class smallCapStock:
         self.buy_in([i for i in target_stocks if i not in holding_stocks])
 
         # 剩余余额买target_num+1标的
-        self.buy_in([target_add_stock.get('code')], first=False)
+        self.buy_in([target_add_stock.get('code')], overall=True)
 
     def sell_out(self, stocks):
         ''' 清仓
@@ -53,26 +53,26 @@ class smallCapStock:
                 if int(trade_price) != 0:
                     self.trader.sell(stock, amount, trade_price)
 
-    def buy_in(self, stocks, first=True):
+    def buy_in(self, stocks, overall=False):
         ''' 开仓 
-            first 针对剩余金额全部购买一支标的进行处理
+            overall 针对剩余金额全部购买一支标的进行处理
         '''
-        if not first:
+        if overall:
             # 重新获取交易信息
             self.trader = trader()
         # 账户可用余额
         enable_balance = self.trader.enable_balance
         #print self.trader.balance
         for stock in stocks:
-            amount, trade_price = trade_price_decision(stock, enable_balance, 'buy', first)
+            amount, trade_price = self.trade_price_decision(stock, enable_balance, 'buy', overall)
             if amount>=100 and int(trade_price) != 0:
                 self.trader.buy(stock, amount, trade_price)
 
-    def trade_price_decision(self, stock, value, direction, first=False):
+    def trade_price_decision(self, stock, value, direction, overall=False):
         '''交易价格决策, 按十档委托数量定价
            direction: 交易方向sell 或 buy
            value: 交易方向是sell时是可用仓位, buy是可用现金
-           first: 是否全仓买入
+           overall: 是否全仓买入
         '''
         # 十档数据
         prices = get_current_ten_price(stock)
@@ -120,7 +120,7 @@ class smallCapStock:
                     price = sort_prices[idx]
                     break
             price = float(price)
-            amount = int(value/self.target_num/price/100) * 100 if first else\
+            amount = int(value/self.target_num/price/100) * 100 if not overall else\
                     int(value/price/100) * 100
             return amount, price
 
