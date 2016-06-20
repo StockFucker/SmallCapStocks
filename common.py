@@ -96,4 +96,4 @@ def get_current_ten_price(stock):
     return bag_prices
 
 if __name__ == '__main__':
-    print get_current_ten_price('300151')
+    print get_current_ten_price('300268')

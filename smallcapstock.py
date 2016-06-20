@@ -16,14 +16,14 @@ LIMIT_UP = -2
 class smallCapStock:
     def __init__(self, target_num=10):
         ''' 当日全部股票 '''
-        self.stocks_info = select(read_cache=True)
+        self.stocks_info = select(read_cache=False)
         self.target_num = target_num
-        #self.trader = trader()
+        self.trader = trader()
 
     def min_volume_stocks(self):
         sort_stocks = sorted(self.stocks_info.values(), key=lambda x: float(x['market_value']))
         target_stocks = sort_stocks[:self.target_num]
-        return {i['code']:i for i in target_stocks}, sort_stocks[self.target_num]
+        return {i['code']:i for i in target_stocks}, sort_stocks[0]
 
     def adjust(self):
         # 10支最小市值股票 
@@ -33,13 +33,15 @@ class smallCapStock:
         # 持仓股票
         holding_stocks = self.trader.holding.keys()
 
-        # 清仓 
-        self.sell_out([i for i in holding_stocks if i not in target_stocks])
-        # 开仓
-        self.buy_in([i for i in target_stocks if i not in holding_stocks])
+        print [i for i in target_stocks if i not in holding_stocks]
 
-        # 剩余余额买target_num+1标的
-        self.buy_in([target_add_stock.get('code')], overall=True)
+        # 清仓 
+        #self.sell_out([i for i in holding_stocks if i not in target_stocks])
+        # 开仓
+        #self.buy_in([i for i in target_stocks if i not in holding_stocks])
+
+        # 剩余余额买市值最小标的
+        #self.buy_in([target_add_stock.get('code')], overall=True)
 
     def sell_out(self, stocks):
         ''' 清仓
@@ -51,7 +53,10 @@ class smallCapStock:
                 decision = self.trade_price_decision(stock, amount, 'sell')
                 trade_price = decision[1]
                 if int(trade_price) != 0:
-                    self.trader.sell(stock, amount, trade_price)
+                    print '--------------------------\n'
+                    ensure = raw_input('Sell stock: %s, amount: %s, trade price: %s, Y/N\n' % (stock, amount, trade_price))
+                    if ensure.lower() == 'y' or ensure.lower() == 'yes':
+                        self.trader.sell(str(stock), int(amount), trade_price)
 
     def buy_in(self, stocks, overall=False):
         ''' 开仓 
@@ -66,7 +71,10 @@ class smallCapStock:
         for stock in stocks:
             amount, trade_price = self.trade_price_decision(stock, enable_balance, 'buy', overall)
             if amount>=100 and int(trade_price) != 0:
-                self.trader.buy(stock, amount, trade_price)
+                print '--------------------------\n'
+                ensure = raw_input('Buy stock: %s, amount: %s, trade price: %s, market value: %s, Y/N\n' % (stock, amount, trade_price, amount*trade_price))
+                if ensure.lower() == 'y' or ensure.lower() == 'yes':
+                    self.trader.buy(str(stock), amount, trade_price)
 
     def trade_price_decision(self, stock, value, direction, overall=False):
         '''交易价格决策, 按十档委托数量定价
@@ -116,7 +124,8 @@ class smallCapStock:
                 price = sort_prices[idx]
                 if not volumes:
                     continue
-                if int(volumes) * float(price) * 100 > value * PREMIUM:
+                if (int(volumes) * float(price) * 100 > value/self.target_num * PREMIUM and not overall)\
+                        or (overall and int(volumes) * float(price) * 100 > value):
                     price = sort_prices[idx]
                     break
             price = float(price)
@@ -125,6 +134,6 @@ class smallCapStock:
             return amount, price
 
 if __name__ == '__main__':
-    scs = smallCapStock()
-    #scs.adjust()
-    print scs.trade_price_decision('600446', 45900, 'sell')
+    scs = smallCapStock(target_num=8)
+    scs.adjust()
+    #print scs.trade_price_decision(i['code'], 100000, 'buy')
