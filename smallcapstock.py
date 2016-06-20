@@ -26,7 +26,7 @@ class smallCapStock:
         return {i['code']:i for i in target_stocks}, sort_stocks[0]
 
     def adjust(self):
-        # 10支最小市值股票 
+        # target_num 支最小市值股票 
         target_stocks_info, target_add_stock = self.min_volume_stocks()
         # 目标股票
         target_stocks = target_stocks_info.keys()
