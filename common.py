@@ -66,10 +66,10 @@ def get_current_five_price(stock):
             bag_prices[infos[i+3]] = sum([ int(k) for k in infos[13+i/5*5:i+14] ])
         if infos[3] == '0.00':
             # 跌停
-            bag_prices['0.00'] = -1
+            bag_prices['0.00'] = LIMIT_DOWN
         elif infos[8] == '0.00':
             # 涨停
-            bag_prices['0.00'] = -2
+            bag_prices['0.00'] = LIMIT_UP
     return bag_prices
 
 def get_current_ten_price(stock):
