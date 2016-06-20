@@ -33,15 +33,13 @@ class smallCapStock:
         # 持仓股票
         holding_stocks = self.trader.holding.keys()
 
-        print [i for i in target_stocks if i not in holding_stocks]
-
         # 清仓 
-        #self.sell_out([i for i in holding_stocks if i not in target_stocks])
+        self.sell_out([i for i in holding_stocks if i not in target_stocks])
         # 开仓
-        #self.buy_in([i for i in target_stocks if i not in holding_stocks])
+        self.buy_in([i for i in target_stocks if i not in holding_stocks])
 
         # 剩余余额买市值最小标的
-        #self.buy_in([target_add_stock.get('code')], overall=True)
+        self.buy_in([target_add_stock.get('code')])
 
     def sell_out(self, stocks):
         ''' 清仓
@@ -54,33 +52,32 @@ class smallCapStock:
                 trade_price = decision[1]
                 if int(trade_price) != 0:
                     print '--------------------------\n'
+                    print 'Sell stock: %s, amount: %s, trade price: %s\n' % (stock, amount, trade_price)
                     ensure = raw_input('Sell stock: %s, amount: %s, trade price: %s, Y/N\n' % (stock, amount, trade_price))
                     if ensure.lower() == 'y' or ensure.lower() == 'yes':
                         self.trader.sell(str(stock), int(amount), trade_price)
 
-    def buy_in(self, stocks, overall=False):
+    def buy_in(self, stocks):
         ''' 开仓 
-            overall 针对剩余金额全部购买一支标的进行处理
         '''
-        if overall:
-            # 重新获取交易信息
-            self.trader = trader()
-        # 账户可用余额
-        enable_balance = self.trader.enable_balance
+        # 重新获取账户 可用余额
+        enable_balance = self.trader.user.balance[0]
+        # 每支调仓股票可用余额
+        each_enable_balance = enable_balance/len(stocks)
         #print self.trader.balance
         for stock in stocks:
-            amount, trade_price = self.trade_price_decision(stock, enable_balance, 'buy', overall)
+            amount, trade_price = self.trade_price_decision(stock, each_enable_balance, 'buy')
             if amount>=100 and int(trade_price) != 0:
                 print '--------------------------\n'
+                print 'Buy stock: %s, amount: %s, trade price: %s, market value: %s\n' % (stock, amount, trade_price, amount*trade_price)
                 ensure = raw_input('Buy stock: %s, amount: %s, trade price: %s, market value: %s, Y/N\n' % (stock, amount, trade_price, amount*trade_price))
                 if ensure.lower() == 'y' or ensure.lower() == 'yes':
                     self.trader.buy(str(stock), amount, trade_price)
 
-    def trade_price_decision(self, stock, value, direction, overall=False):
+    def trade_price_decision(self, stock, value, direction):
         '''交易价格决策, 按十档委托数量定价
            direction: 交易方向sell 或 buy
            value: 交易方向是sell时是可用仓位, buy是可用现金
-           overall: 是否全仓买入
         '''
         # 十档数据
         prices = get_current_ten_price(stock)
@@ -119,18 +116,16 @@ class smallCapStock:
             price = sort_volumes[int(prices_num/2):] if prices_num%5 == 0 else sort_prices[1]
             num_range = int(prices_num/2) if prices_num%5 == 0 else prices_num
             for k in range(num_range):
-                idx = num_range+k
+                idx = num_range + k
                 volumes = sort_volumes[idx]
                 price = sort_prices[idx]
                 if not volumes:
                     continue
-                if (int(volumes) * float(price) * 100 > value/self.target_num * PREMIUM and not overall)\
-                        or (overall and int(volumes) * float(price) * 100 > value):
+                if int(volumes) * float(price) * 100 > value * PREMIUM:
                     price = sort_prices[idx]
                     break
             price = float(price)
-            amount = int(value/self.target_num/price/100) * 100 if not overall else\
-                    int(value/price/100) * 100
+            amount = int(value/price/100) * 100
             return amount, price
 
 if __name__ == '__main__':
