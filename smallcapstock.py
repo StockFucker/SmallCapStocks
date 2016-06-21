@@ -20,18 +20,13 @@ class smallCapStock:
         self.target_num = target_num
         self.trader = trader()
 
-    def min_volume_stocks(self):
-        sort_stocks = sorted(self.stocks_info.values(), key=lambda x: float(x['market_value']))
-        target_stocks = sort_stocks[:self.target_num]
-        return {i['code']:i for i in target_stocks}, sort_stocks[0]
-
     def adjust(self):
-        # target_num 支最小市值股票 
-        target_stocks_info, target_add_stock = self.min_volume_stocks()
-        # 目标股票
-        target_stocks = target_stocks_info.keys()
         # 持仓股票
         holding_stocks = self.trader.holding.keys()
+
+        # 目标股票决策
+        target_stocks_info, target_add_stock = self.target_stocks_decision(holding_stocks)
+        target_stocks = target_stocks_info.keys()
 
         # 清仓 
         self.sell_out([i for i in holding_stocks if i not in target_stocks])
@@ -51,8 +46,9 @@ class smallCapStock:
                 decision = self.trade_price_decision(stock, amount, 'sell')
                 trade_price = decision[1]
                 if int(trade_price) != 0:
-                    print '--------------------------\n'
-                    print 'Sell stock: %s, amount: %s, trade price: %s\n' % (stock, amount, trade_price)
+                    print '--------------------------------------------------------------------------\n'
+                    print 'Sell stock: %s, amount: %s, trade price: %s\n, YES or NO' % (stock, amount, trade_price)
+                    print '--------------------------------------------------------------------------\n'
                     ensure = raw_input('Sell stock: %s, amount: %s, trade price: %s, Y/N\n' % (stock, amount, trade_price))
                     if ensure.lower() == 'y' or ensure.lower() == 'yes':
                         self.trader.sell(str(stock), int(amount), trade_price)
@@ -68,11 +64,32 @@ class smallCapStock:
         for stock in stocks:
             amount, trade_price = self.trade_price_decision(stock, each_enable_balance, 'buy')
             if amount>=100 and int(trade_price) != 0:
-                print '--------------------------\n'
-                print 'Buy stock: %s, amount: %s, trade price: %s, market value: %s\n' % (stock, amount, trade_price, amount*trade_price)
+                print '------------------------------------------------------------------------------\n'
+                print 'Buy stock: %s, amount: %s, trade price: %s, market value: %s, YES or NO\n' % (stock, amount, trade_price, amount*trade_price)
+                print '------------------------------------------------------------------------------\n'
                 ensure = raw_input('Buy stock: %s, amount: %s, trade price: %s, market value: %s, Y/N\n' % (stock, amount, trade_price, amount*trade_price))
                 if ensure.lower() == 'y' or ensure.lower() == 'yes':
                     self.trader.buy(str(stock), amount, trade_price)
+
+    def target_stocks_decision(self, holding_stocks):
+        ''' 考虑目标股票中存在涨停或者跌停的情况
+            如果持仓中没有这些目标股票，则跳过，顺序替补次小市值股票。如果有，则持仓
+        '''
+        result = {}
+        # target_num 支最小市值股票 
+        sort_stocks = sorted(self.stocks_info.values(), key=lambda x: float(x['market_value']))
+        for stock in sort_stocks:
+            if len(result.keys()) >= self.target_num:
+                break
+            if (stock['now'] == stock['limit_up'] and stock['code'] in holding_stocks) or \
+            (stock['now'] == stock['limit_down'] and stock['code'] not in holding_stocks):
+                # 涨停并在持仓中  或者跌停不在持仓中 则加入目标股票池
+                result[stock['code']] = stock
+            elif (stock['now'] != stock['limit_up'] and stock['now'] != stock['limit_down']):
+                # 非涨停跌停 加入目标池
+                result[stock['code']] = stock
+        add_stock = sorted(result.values(), key=lambda x: float(x['market_value']))[0]
+        return result, add_stock
 
     def trade_price_decision(self, stock, value, direction):
         '''交易价格决策, 按十档委托数量定价
