@@ -12,6 +12,7 @@ PREMIUM = 1.02
 
 LIMIT_DOWN = -1
 LIMIT_UP = -2
+STOCKS_NUM = 8
 
 class smallCapStock:
     def __init__(self, target_num=10):
@@ -28,12 +29,12 @@ class smallCapStock:
         target_stocks_info, target_add_stock = self.target_stocks_decision(holding_stocks)
         target_stocks = target_stocks_info.keys()
 
-        # 清仓 
+        ## 清仓 
         self.sell_out([i for i in holding_stocks if i not in target_stocks])
-        # 开仓
+        ## 开仓
         self.buy_in([i for i in target_stocks if i not in holding_stocks])
 
-        # 剩余余额买市值最小标的
+        ## 剩余余额买市值最小标的
         self.buy_in([target_add_stock.get('code')])
 
     def sell_out(self, stocks):
@@ -57,7 +58,7 @@ class smallCapStock:
         ''' 开仓 
         '''
         # 重新获取账户 可用余额
-        enable_balance = self.trader.user.balance[0]
+        enable_balance = self.trader.user.balance[0].get('enable_balance')
         # 每支调仓股票可用余额
         each_enable_balance = enable_balance/len(stocks)
         #print self.trader.balance
@@ -146,6 +147,6 @@ class smallCapStock:
             return amount, price
 
 if __name__ == '__main__':
-    scs = smallCapStock(target_num=8)
+    scs = smallCapStock(target_num=STOCKS_NUM)
     scs.adjust()
     #print scs.trade_price_decision(i['code'], 100000, 'buy')
