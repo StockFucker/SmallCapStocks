@@ -53,7 +53,7 @@ class smallCapStock:
         for stock in stocks:
             weight = (enable_balance/len(stocks)) if first else enable_balance
             if weight <=100 and weight>=0:
-                self.trader.buy(stock, weight)
+                self.trader.buy(stock, int(weight))
 
 if __name__ == '__main__':
     scs = smallCapStock()
