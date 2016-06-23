@@ -1,7 +1,8 @@
 SmallCapStocks
 ==========
-**xueqiu branch**
+**xueqiu branch**                 
 **A small capacity stocks strategy, calculate the market value of stocks, and buy the minimum several stocks.**                 
+        
 **SUPPORT python2**
 _________________
     
