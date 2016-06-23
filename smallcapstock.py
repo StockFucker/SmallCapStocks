@@ -38,7 +38,7 @@ class smallCapStock:
         ''' 清仓
         '''
         for stock in stocks:
-            weight = 0
+            weight = 0 if len(stocks) > 1 else 1
             if weight <= 100 and weight >= 0:
                 self.trader.sell(stock, weight)
 
