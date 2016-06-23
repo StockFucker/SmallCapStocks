@@ -9,7 +9,7 @@ from trader import trader
 class smallCapStock:
     def __init__(self, target_num=10):
         ''' 当日全部股票 '''
-        self.stocks_info = select(read_cache=True)
+        self.stocks_info = select(read_cache=False)
         self.target_num = target_num
         self.trader = trader()
 
@@ -27,20 +27,28 @@ class smallCapStock:
         holding_stocks = self.trader.holding.keys()
 
         # 清仓 
-        self.sell_out([i for i in holding_stocks if i not in target_stocks])
+        clear_stocks = [i for i in holding_stocks if i not in target_stocks]
+        if len(holding_stocks) == 1 and len(clear_stocks) != 0:
+            self.sell_out(clear_stocks, weight = 1)
+        elif len(holding_stocks) == len(clear_stocks):
+            self.sell_out(clear_stocks, weight = -1)
+        else:
+            self.sell_out(clear_stocks)
         # 开仓
         self.buy_in([i for i in target_stocks if i not in holding_stocks])
 
         # 剩余余额买target_num+1标的
         self.buy_in([target_add_stock.get('code')], first=False)
 
-    def sell_out(self, stocks):
+    def sell_out(self, stocks, weight=0):
         ''' 清仓
         '''
-        for stock in stocks:
-            weight = 0 if len(stocks) > 1 else 1
-            if weight <= 100 and weight >= 0:
-                self.trader.sell(stock, weight)
+        for num, stock in enumerate(stocks):
+            d_weight =  0 if weight == -1 else weight
+            if weight == -1 and num == len(stocks)-1:
+                d_weight = 1
+            if d_weight <= 100 and d_weight >= 0:
+                self.trader.sell(stock, d_weight)
 
     def buy_in(self, stocks, first=True):
         ''' 开仓 
