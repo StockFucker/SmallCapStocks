@@ -27,46 +27,41 @@ class smallCapStock:
         holding_stocks = self.trader.holding.keys()
 
         # 清仓 
-        self.sell_out([i for i in holding_stocks if i not in target_stocks])
+        clear_stocks = [i for i in holding_stocks if i not in target_stocks]
+        if len(holding_stocks) == 1 and len(clear_stocks) != 0:
+            self.sell_out(clear_stocks, weight = 1)
+        elif len(holding_stocks) == len(clear_stocks):
+            self.sell_out(clear_stocks, weight = -1)
+        else:
+            self.sell_out(clear_stocks)
         # 开仓
         self.buy_in([i for i in target_stocks if i not in holding_stocks])
-
-        # 再次清仓, 针对雪球1% 无法清仓的情况调整
-        self.sell_out([i for i in holding_stocks if i not in target_stocks], first=False)
 
         # 剩余余额买target_num+1标的
         self.buy_in([target_add_stock.get('code')], first=False)
 
-    def sell_out(self, stocks, first=True):
+    def sell_out(self, stocks, weight=0):
         ''' 清仓
-            first 针对雪球1%无法清仓的情况对应处理
         '''
-        if not first:
-            # 重新获取交易信息
-            self.trader = trader()
-        for stock in stocks:
-            amount = self.trader.holding.get(stock).get('enable_amount') or 0
-            if not first or (first and amount > 100):
-                current_price = float(self.stocks_info.get(stock).get('now'))
-                trade_price = float(current_price) - 0.01
-                self.trader.sell(stock, amount, current_price)
+        for num, stock in enumerate(stocks):
+            d_weight =  0 if weight == -1 else weight
+            if weight == -1 and num == len(stocks)-1:
+                d_weight = 1
+            if d_weight <= 100 and d_weight >= 0:
+                self.trader.sell(stock, d_weight)
 
     def buy_in(self, stocks, first=True):
         ''' 开仓 
             first 针对剩余金额全部购买一支标的进行处理
         '''
-        if not first:
-            # 重新获取交易信息
-            self.trader = trader()
-        # 账户可用余额
-        enable_balance = self.trader.enable_balance
-        #print self.trader.balance
+        # 重新获取交易信息
+        self.trader = trader()
+        # 账户可用余额(百分比)
+        enable_balance = 100 - sum([i['weight'] for i in self.trader.holding.values()])
         for stock in stocks:
-            current_price = float(self.stocks_info.get(stock).get('now'))
-            amount = int(enable_balance/self.target_num/current_price/100) * 100 if first else\
-                    int(enable_balance/current_price/100) * 100
-            if amount>=100:
-                self.trader.buy(stock, amount, current_price)
+            weight = (enable_balance/len(stocks)) if first else enable_balance
+            if weight <=100 and weight>=0:
+                self.trader.buy(stock, int(weight))
 
 if __name__ == '__main__':
     scs = smallCapStock()

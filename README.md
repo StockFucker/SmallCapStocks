@@ -1,6 +1,8 @@
 SmallCapStocks
 ==========
+**xueqiu branch**                 
 **A small capacity stocks strategy, calculate the market value of stocks, and buy the minimum several stocks.**                 
+        
 **SUPPORT python2**
 _________________
     
@@ -13,6 +15,8 @@ Dependency
 ===============
 [easytrader](https://github.com/shidenggui/easytrader)         
 
+I have changed some source codes from easytrader, and it's easy to adjust position.          
+You can get the source code [from my fork easytrader](https://github.com/xdbaqiao/easytrader)                 
 Install easytrader, you need install logbook, demjson, use following command:         
        
        sudo pip install logbook         

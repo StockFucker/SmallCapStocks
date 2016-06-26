@@ -66,7 +66,7 @@ def get_prices():
             }
             if 'S' not in bag['name'] and bag['code'] not in list_risk_stocks and bag['market_value']: 
                 #filter stock with ST or risk notification
-                if bag['now'] != bag['limit_up'] and bag['volume'] != 0 and bag['code'] not in uniq_list:
+                if bag['limit_up'] > 0 and bag['now'] != bag['limit_up'] and bag['volume'] != 0 and bag['code'] not in uniq_list:
                     # not limit up and suspended
                     uniq_list.append(bag['code'])
                     bag_price.append(bag)
