@@ -24,6 +24,7 @@ class smallCapStock:
     def adjust(self):
         # 持仓股票
         holding_stocks = self.trader.holding.keys()
+        #holding_stocks = ['600423', '000803', '002193', '600099', '300029', '002205', '000929', '300268']
 
         # 目标股票决策
         target_stocks_info, target_add_stock = self.target_stocks_decision(holding_stocks)
@@ -34,8 +35,8 @@ class smallCapStock:
         ## 开仓
         self.buy_in([i for i in target_stocks if i not in holding_stocks])
 
-        ## 剩余余额买市值最小标的
-        self.buy_in([target_add_stock.get('code')])
+        ### 剩余余额买市值最小标的
+        #self.buy_in([target_add_stock.get('code')])
 
     def sell_out(self, stocks):
         ''' 清仓
@@ -73,13 +74,21 @@ class smallCapStock:
                     self.trader.buy(str(stock), amount, trade_price)
 
     def target_stocks_decision(self, holding_stocks):
-        ''' 考虑目标股票中存在涨停或者跌停的情况
+        ''' 1. 考虑目标股票中存在涨停或者跌停的情况
             如果持仓中没有这些目标股票，则跳过，顺序替补次小市值股票。如果有，则持仓
+            2. 考虑持仓股票中有停牌的情况
         '''
         result = {}
+        # 持仓股停牌 加入目标池
+        for stock in holding_stocks:
+            if int(self.stocks_info[stock].get('volume')) == 0:
+                result[stock] = self.stocks_info[stock]
         # target_num 支最小市值股票 
         sort_stocks = sorted(self.stocks_info.values(), key=lambda x: float(x['market_value']))
         for stock in sort_stocks:
+            if int(stock.get('volume')) == 0:
+                # 停牌
+                continue
             if len(result.keys()) >= self.target_num:
                 break
             if (stock['now'] == stock['limit_up'] and stock['code'] in holding_stocks) or \
