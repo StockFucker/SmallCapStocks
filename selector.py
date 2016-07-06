@@ -8,7 +8,7 @@ from common import *
 from collections import deque
 from download import download
 
-THREADS_NUM = 80
+THREADS_NUM = 800
 SRC = 'http://qt.gtimg.cn/q=%s'
 
 def risk_stocks():

@@ -3,6 +3,7 @@
 
 from __future__ import division
 
+import time
 from selector import select
 from trader import trader
 from common import get_current_five_price, get_current_ten_price
@@ -30,9 +31,11 @@ class smallCapStock:
         target_stocks_info, target_add_stock = self.target_stocks_decision(holding_stocks)
         target_stocks = target_stocks_info.keys()
 
-        ## 清仓 
+        # 卖出
         self.sell_out([i for i in holding_stocks if i not in target_stocks])
-        ## 开仓
+        # 卖出后等待十秒
+        time.sleep(10)
+        # 开仓
         self.buy_in([i for i in target_stocks if i not in holding_stocks])
 
         ### 剩余余额买市值最小标的
@@ -58,6 +61,8 @@ class smallCapStock:
     def buy_in(self, stocks):
         ''' 开仓 
         '''
+        if len(stocks) == 0:
+            return
         # 重新获取账户 可用余额
         enable_balance = self.trader.user.balance[0].get('enable_balance')
         # 每支调仓股票可用余额
