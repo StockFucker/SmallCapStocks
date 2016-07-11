@@ -8,7 +8,7 @@ from common import *
 from collections import deque
 from download import download
 
-THREADS_NUM = 800
+THREADS_NUM = 80
 SRC = 'http://qt.gtimg.cn/q=%s'
 
 def risk_stocks():
@@ -60,6 +60,8 @@ def get_prices():
                 'up_down(%)': float(stock[32]),
                 'high': float(stock[33]),
                 'low': float(stock[34]),
+                'high_day': float(stock[41]),
+                'low_day': float(stock[42]),
                 'market_value': float(stock[45]) if stock[44] != '' else None,
                 'PB': float(stock[46]),
                 'limit_up': float(stock[47]),

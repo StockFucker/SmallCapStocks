@@ -25,7 +25,6 @@ class smallCapStock:
     def adjust(self):
         # 持仓股票
         holding_stocks = self.trader.holding.keys()
-        #holding_stocks = ['600423', '000803', '002193', '600099', '300029', '002205', '000929', '300268']
 
         # 目标股票决策
         target_stocks_info, target_add_stock = self.target_stocks_decision(holding_stocks)
@@ -33,8 +32,8 @@ class smallCapStock:
 
         # 卖出
         self.sell_out([i for i in holding_stocks if i not in target_stocks])
-        # 卖出后等待十秒
-        time.sleep(10)
+        # 卖出后等待3秒
+        time.sleep(3)
         # 开仓
         self.buy_in([i for i in target_stocks if i not in holding_stocks])
 
@@ -51,12 +50,7 @@ class smallCapStock:
                 decision = self.trade_price_decision(stock, amount, 'sell')
                 trade_price = decision[1]
                 if int(trade_price) != 0:
-                    print '--------------------------------------------------------------------------\n'
-                    print 'Sell stock: %s, amount: %s, trade price: %s\n, YES or NO' % (stock, amount, trade_price)
-                    print '--------------------------------------------------------------------------\n'
-                    ensure = raw_input('Sell stock: %s, amount: %s, trade price: %s, Y/N\n' % (stock, amount, trade_price))
-                    if ensure.lower() == 'y' or ensure.lower() == 'yes':
-                        self.trader.sell(str(stock), int(amount), trade_price)
+                    self.trader.sell(str(stock), int(amount), trade_price)
 
     def buy_in(self, stocks):
         ''' 开仓 
@@ -71,12 +65,7 @@ class smallCapStock:
         for stock in stocks:
             amount, trade_price = self.trade_price_decision(stock, each_enable_balance, 'buy')
             if amount>=100 and int(trade_price) != 0:
-                print '------------------------------------------------------------------------------\n'
-                print 'Buy stock: %s, amount: %s, trade price: %s, market value: %s, YES or NO\n' % (stock, amount, trade_price, amount*trade_price)
-                print '------------------------------------------------------------------------------\n'
-                ensure = raw_input('Buy stock: %s, amount: %s, trade price: %s, market value: %s, Y/N\n' % (stock, amount, trade_price, amount*trade_price))
-                if ensure.lower() == 'y' or ensure.lower() == 'yes':
-                    self.trader.buy(str(stock), amount, trade_price)
+                self.trader.buy(str(stock), amount, trade_price)
 
     def target_stocks_decision(self, holding_stocks):
         ''' 1. 考虑目标股票中存在涨停或者跌停的情况
@@ -84,9 +73,11 @@ class smallCapStock:
             2. 考虑持仓股票中有停牌的情况
         '''
         result = {}
-        # 持仓股停牌 加入目标池
+        # 持仓股停牌 加入目标池 或者 持仓股一字板 加入目标池
         for stock in holding_stocks:
-            if int(self.stocks_info[stock].get('volume')) == 0:
+            if int(self.stocks_info[stock].get('volume')) == 0 \
+               or (self.stocks_info[stock]['now'] == self.stocks_info[stock]['limit_up']
+                   and self.stocks_info[stock].get('low_day') == self.stocks_info[stock].get('high_day')):
                 result[stock] = self.stocks_info[stock]
         # target_num 支最小市值股票 
         sort_stocks = sorted(self.stocks_info.values(), key=lambda x: float(x['market_value']))
