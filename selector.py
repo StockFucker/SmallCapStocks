@@ -8,7 +8,7 @@ from common import *
 from collections import deque
 from download import download
 
-THREADS_NUM = 800
+THREADS_NUM = 80
 SRC = 'http://qt.gtimg.cn/q=%s'
 
 def risk_stocks():
@@ -60,6 +60,8 @@ def get_prices():
                 'up_down(%)': float(stock[32]),
                 'high': float(stock[33]),
                 'low': float(stock[34]),
+                'high_day': float(stock[41]),
+                'low_day': float(stock[42]),
                 'market_value': float(stock[45]) if stock[44] != '' else None,
                 'PB': float(stock[46]),
                 'limit_up': float(stock[47]),
@@ -67,8 +69,8 @@ def get_prices():
             }
             if 'S' not in bag['name'] and bag['code'] not in list_risk_stocks and bag['market_value']: 
                 #filter stock with ST or risk notification
-                if bag['limit_up'] > 0  and bag['volume'] != 0 and bag['code'] not in uniq_list:
-                    # excluding suspended
+                if bag['limit_up'] > 0  and bag['code'] not in uniq_list:
+                    # excluding new stock
                     uniq_list.append(bag['code'])
                     bag_price.append(bag)
     muilt_thread(worker, THREADS_NUM)
