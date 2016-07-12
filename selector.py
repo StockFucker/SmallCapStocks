@@ -67,7 +67,7 @@ def get_prices():
                 'limit_up': float(stock[47]),
                 'limit_down': float(stock[48])
             }
-            if 'S' not in bag['name'] and bag['code'] not in list_risk_stocks and bag['market_value']: 
+            if '*' not in bag['name'] and 'S' not in bag['name'] and bag['code'] not in list_risk_stocks and bag['market_value']: 
                 #filter stock with ST or risk notification
                 if bag['limit_up'] > 0  and bag['code'] not in uniq_list:
                     # excluding new stock
