@@ -10,6 +10,7 @@ from download import download
 
 THREADS_NUM = 80
 SRC = 'http://qt.gtimg.cn/q=%s'
+BLACK_LIST = ['300126']
 
 def risk_stocks():
     ''' get all risk notification stocks'''
@@ -69,7 +70,7 @@ def get_prices():
             }
             if '*' not in bag['name'] and 'S' not in bag['name'] and bag['code'] not in list_risk_stocks and bag['market_value']: 
                 #filter stock with ST or risk notification
-                if bag['limit_up'] > 0  and bag['code'] not in uniq_list:
+                if bag['limit_up'] > 0  and bag['code'] not in uniq_list and bag['code'] not in BLACK_LIST:
                     # excluding new stock
                     uniq_list.append(bag['code'])
                     bag_price.append(bag)
