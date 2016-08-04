@@ -98,9 +98,5 @@ def get_current_ten_price(stock):
     return bag_prices
 
 if __name__ == '__main__':
-<<<<<<< HEAD
-    print get_all_stock_codes(True)
-=======
     f = get_stock_prefix_codes(is_A=True)
     print len(f)
->>>>>>> 014e0bb8f00cc685fa8f3d87c4593f585e802442
