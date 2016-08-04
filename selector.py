@@ -13,6 +13,7 @@ SRC = 'http://qt.gtimg.cn/q=%s'
 BLACK_LIST = ['300126']
 
 def risk_stocks():
+    return []
     ''' get all risk notification stocks'''
     url = 'http://www.sse.com.cn/disclosure/listedinfo/riskplate/list/'
     html = download().get(url)
@@ -66,7 +67,8 @@ def get_prices():
                 'market_value': float(stock[45]) if stock[44] != '' else None,
                 'PB': float(stock[46]),
                 'limit_up': float(stock[47]),
-                'limit_down': float(stock[48])
+                'limit_down': float(stock[48]),
+                'PE': float(stock[39]) if stock[39] != '' else None
             }
             if '*' not in bag['name'] and 'S' not in bag['name'] and bag['code'] not in list_risk_stocks and bag['market_value']: 
                 #filter stock with ST or risk notification
@@ -106,4 +108,4 @@ def select(read_cache=False, write_cache=True):
     return {i['code']:i for i in result}
 
 if __name__ == '__main__':
-    print select(read_cache=False)
+    select(read_cache=False)
