@@ -32,10 +32,12 @@ def get_stock_prefix(stock_code):
 
 def get_all_stock_codes(is_A=False):
     """默认获取所有A股股票 ID"""
+    stock_codes = []
     result = []
-    url = 'http://www.shdjt.com/js/lib/astock.js'
+    url = 'http://nufm.dfcfw.com/EM_Finance2014NumericApplication/JS.aspx?type=CT&cmd=C._A&sty=FCOIATA&sortType=K&sortRule=-1&page=1&pageSize=5000&js=[(x)]&token=7bc05d0d4c3c22ef9fca8c2a912d779c&jsName=quote_123'
     html = download().get(url)
-    stock_codes = re.compile('~(\d+)`').findall(html) or []
+    for i in html.split('","'):
+        stock_codes.append(i.split(',')[1])
     stock_codes = list(set(stock_codes))
 
     if not is_A:
@@ -96,4 +98,5 @@ def get_current_ten_price(stock):
     return bag_prices
 
 if __name__ == '__main__':
-    print get_current_ten_price('300268')
+    f = get_stock_prefix_codes(is_A=True)
+    print len(f)

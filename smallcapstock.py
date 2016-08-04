@@ -13,7 +13,7 @@ PREMIUM = 1.02
 
 LIMIT_DOWN = -1
 LIMIT_UP = -2
-STOCKS_NUM = 8
+STOCKS_NUM = 10
 
 class smallCapStock:
     def __init__(self, target_num=10):
