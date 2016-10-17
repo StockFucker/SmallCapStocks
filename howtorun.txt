@@ -1,0 +1,50 @@
+linux平台（阿里云ubuntu 16.04）下使用crontab计划执行easytrader。
+
+其中ht.json文件是下述格式：
+{
+“userName”: “xxxx”,
+“servicePwd”: “xxxx”,
+“trdpwd”: “xxxx”
+}
+其中如何获得trdpwd的帖子见：
+http://www.celuetan.com/topic/5731e9ee705ee8f61eb681fd
+
+文件g.py格式：
+import easytrader
+user = easytrader.use(“ht”, debug=False)  # debug=False是关闭log输出
+user.prepare("/data/g/ht.json") #使用全路径是试crontab下可找到文件
+po = user.position
+
+安装anaconda3和easytrader后，可以通过执行命令：
+python g.py实现程序化交易了。
+如果希望后台执行：
+nohup python -u g.py > g.out 2>&1 &
+其中参数-u是不断输出信息
+
+但是，如果希望通过crontab执行计划任务，比如每天9:30自动运行g.py
+一开始，我是这样做的
+在提示行上输入crontab -e
+然后在里面加上一行：
+30 9 * * * /data/anaconda3/bin/python3.5 -u /data/g/g.py >> data/g/g.out
+
+然后ctrl+x 按y退出，但此时运行到这一行
+user.prepare("/data/g/ht.json")
+就会自动悄无声息的退出，一开始连续几天我发现每天早上9：30闪了一下就没动静了。
+后来只能手动执行
+nohup python -u g.py > g.out 2>&1 &
+但总是不能实现执行计划任务啊。
+后来想到用shell执行python程序的办法。
+于是建立文件g.sh
+#!/bin/bash
+export PYTHONPATH="$PYTHONPATH:/data/anaconda3/lib/python3.5/site-packages"
+cd /data/gorilla
+export JAVA_HOME=/usr/local/jdk1.7.0_79
+export PATH=$JAVA_HOME/bin:$PATH
+. $HOME/.profile
+/data/anaconda3/bin/python3.5 -u g.py > g.out 2>&1 &
+
+然后为了保险起见，别忘记了执行一句
+dos2unix g.sh
+把文件格式改为unix类型
+然后把crontab -e中的计划命令改为：
+30 9 * * * cd /data/g && bash g.sh
